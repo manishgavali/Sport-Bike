@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: smart-sport-bike-ecosystem
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smart-bike-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_ENV
+        value: production
+
+databases:
+  - name: smart-bike-db
+    databaseName: smart_bike_ecosystem
+    plan: free
+    region: oregon

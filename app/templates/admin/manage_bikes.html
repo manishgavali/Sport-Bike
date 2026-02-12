@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Bikes - Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 class="fade-in">Manage <span class="gradient-text">Bikes</span> 🏍️</h1>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{{ url_for('admin.add_bike') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Bike
+            </a>
+            <a href="{{ url_for('admin.index') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 1rem;">
+            <input type="text" id="searchInput" class="form-input" placeholder="Search bikes..." onkeyup="filterBikes()">
+            <select class="form-select" id="filterBrand" onchange="filterBikes()">
+                <option value="">All Brands</option>
+                <option value="yamaha">Yamaha</option>
+                <option value="kawasaki">Kawasaki</option>
+                <option value="ktm">KTM</option>
+                <option value="honda">Honda</option>
+                <option value="suzuki">Suzuki</option>
+            </select>
+            <select class="form-select" id="filterCategory" onchange="filterBikes()">
+                <option value="">All Categories</option>
+                <option value="sport">Sport</option>
+                <option value="supersport">Supersport</option>
+                <option value="naked">Naked</option>
+                <option value="touring">Touring</option>
+            </select>
+            <select class="form-select" id="filterStatus" onchange="filterBikes()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Bikes Table -->
+    <div class="glass-card">
+        <div class="table-container">
+            <table class="data-table" id="bikesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Category</th>
+                        <th>Price (₹)</th>
+                        <th>Engine CC</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bike in bikes %}
+                    <tr data-brand="{{ bike.brand.lower() }}" data-category="{{ bike.category.lower() if bike.category else '' }}" data-status="{{ 'active' if bike.is_active else 'inactive' }}">
+                        <td>{{ bike.id }}</td>
+                        <td>
+                            <div style="width: 60px; height: 40px; background: rgba(0, 217, 255, 0.1); border-radius: 5px; display: flex; align-items: center; justify-content: center;">
+                                🏍️
+                            </div>
+                        </td>
+                        <td style="font-weight: 600;">{{ bike.brand }}</td>
+                        <td>{{ bike.model }}</td>
+                        <td>{{ bike.year }}</td>
+                        <td>
+                            <span style="background: rgba(0, 217, 255, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">
+                                {{ bike.category or 'N/A' }}
+                            </span>
+                        </td>
+                        <td>₹{{ '{:,.0f}'.format(bike.price) if bike.price else 'N/A' }}</td>
+                        <td>{{ bike.specs.engine_cc if bike.specs else 'N/A' }} cc</td>
+                        <td>
+                            {% if bike.is_active %}
+                                <span style="color: #4caf50;">● Active</span>
+                            {% else %}
+                                <span style="color: var(--accent-orange);">● Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{{ url_for('admin.edit_bike', bike_id=bike.id) }}" class="btn btn-warning" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.delete_bike', bike_id=bike.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to deactivate this bike?');">
+                                    <button type="submit" class="btn btn-danger" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                        <i class="fas fa-trash"></i> {{ 'Deactivate' if bike.is_active else 'Activate' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div style="display: flex; justify-content: center; margin-top: 2rem; gap: 0.5rem;">
+        <button class="btn btn-secondary">Previous</button>
+        <button class="btn btn-primary">1</button>
+        <button class="btn btn-secondary">2</button>
+        <button class="btn btn-secondary">3</button>
+        <button class="btn btn-secondary">Next</button>
+    </div>
+</div>
+
+<!-- Add/Edit Bike Modal (reuse from dashboard.html) -->
+<div id="addBikeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999; overflow-y: auto;">
+    <div style="max-width: 900px; margin: 4rem auto; padding: 2rem;">
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--accent-cyan);">Add New Bike</h2>
+                <button onclick="document.getElementById('addBikeModal').style.display='none'" style="background: none; border: none; color: var(--text-light); font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            
+            <form method="POST" action="#">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <input type="text" name="brand" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input type="text" name="model" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="number" name="year" class="form-input" min="2000" max="2030" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-select">
+                            <option value="sport">Sport</option>
+                            <option value="supersport">Supersport</option>
+                            <option value="naked">Naked</option>
+                            <option value="touring">Touring</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price (₹)</label>
+                        <input type="number" name="price" class="form-input" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Engine CC</label>
+                        <input type="number" name="engine_cc" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Power (HP)</label>
+                        <input type="number" name="max_power" class="form-input" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Torque (Nm)</label>
+                        <input type="number" name="max_torque" class="form-input" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Top Speed (km/h)</label>
+                        <input type="number" name="top_speed" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">0-100 km/h (sec)</label>
+                        <input type="number" name="acceleration_0_100" class="form-input" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">City Mileage (km/l)</label>
+                        <input type="number" name="mileage_city" class="form-input" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Highway Mileage (km/l)</label>
+                        <input type="number" name="mileage_highway" class="form-input" step="0.1">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">Save Bike</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterBikes() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const brandFilter = document.getElementById('filterBrand').value.toLowerCase();
+    const categoryFilter = document.getElementById('filterCategory').value.toLowerCase();
+    const statusFilter = document.getElementById('filterStatus').value;
+    
+    const rows = document.querySelectorAll('#bikesTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const brand = row.dataset.brand;
+        const category = row.dataset.category;
+        const status = row.dataset.status;
+        
+        const matchesSearch = text.includes(searchInput);
+        const matchesBrand = !brandFilter || brand.includes(brandFilter);
+        const matchesCategory = !categoryFilter || category.includes(categoryFilter);
+        const matchesStatus = statusFilter === 'all' || status === statusFilter;
+        
+        if (matchesSearch && matchesBrand && matchesCategory && matchesStatus) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function editBike(bikeId) {
+    window.location.href = `/admin/bikes/${bikeId}/edit`;
+}
+
+function viewSpecs(bikeId) {
+    window.location.href = `/admin/bikes/${bikeId}/specs`;
+}
+
+function toggleStatus(bikeId, currentStatus) {
+    const action = currentStatus ? 'deactivate' : 'activate';
+    if (confirm(`Are you sure you want to ${action} this bike?`)) {
+        fetch(`/admin/bikes/${bikeId}/toggle-status`, {
+            method: 'POST',
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

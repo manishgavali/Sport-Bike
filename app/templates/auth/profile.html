@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - {{ current_user.username }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div class="glass-card fade-in">
+        <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+            <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--gradient-accent); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                {{ current_user.username[0].upper() }}
+            </div>
+            <div>
+                <h2 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">{{ current_user.full_name or current_user.username }}</h2>
+                <p style="color: var(--text-gray);">@{{ current_user.username }}</p>
+                <span style="background: var(--accent-orange); padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.85rem;">
+                    {{ current_user.riding_experience|capitalize }} Rider
+                </span>
+            </div>
+        </div>
+        
+        <!-- Basic Details Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+            <div>
+                <p style="color: var(--text-gray); margin-bottom: 0.5rem;">Email</p>
+                <p style="color: var(--text-light);">{{ current_user.email }}</p>
+            </div>
+            <div>
+                <p style="color: var(--text-gray); margin-bottom: 0.5rem;">Member Since</p>
+                <p style="color: var(--text-light);">{{ current_user.created_at.strftime('%B %Y') }}</p>
+            </div>
+            <div>
+                <p style="color: var(--text-gray); margin-bottom: 0.5rem;">Phone</p>
+                <p style="color: var(--text-light);">{{ current_user.phone or 'Not provided' }}</p>
+            </div>
+            <div>
+                <p style="color: var(--text-gray); margin-bottom: 0.5rem;">Account Status</p>
+                <p style="color: var(--accent-cyan);">{{ 'Active' if current_user.is_active else 'Inactive' }}</p>
+            </div>
+        </div>
+        
+        <!-- Seller Details Section -->
+        <div style="border-top: 1px solid rgba(0, 217, 255, 0.2); margin-top: 2rem; padding-top: 2rem;">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                👤 Seller Details (For Resale Marketplace)
+            </h3>
+            <p style="color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Required when selling your bike. Ensure information matches your RC (Registration Certificate).
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <div>
+                    <p style="color: var(--text-gray); margin-bottom: 0.5rem;">Full Name (as per RC)</p>
+                    <p style="color: var(--text-light);">{{ current_user.rc_full_name or 'Not provided' }}</p>
+                </div>
+                <div>
+                    <p style="color: var(--text-gray); margin-bottom: 0.5rem;">Mobile Number</p>
+                    <p style="color: var(--text-light);">{{ current_user.phone or 'Not provided' }}</p>
+                </div>
+                <div>
+                    <p style="color: var(--text-gray); margin-bottom: 0.5rem;">ID Proof Type</p>
+                    <p style="color: var(--text-light);">
+                        {% if current_user.id_proof_type == 'aadhaar' %}Aadhaar Card
+                        {% elif current_user.id_proof_type == 'pan' %}PAN Card
+                        {% elif current_user.id_proof_type == 'voter_id' %}Voter ID
+                        {% elif current_user.id_proof_type == 'driving_license' %}Driving License
+                        {% else %}Not provided{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <p style="color: var(--text-gray); margin-bottom: 0.5rem;">ID Proof Number</p>
+                    <p style="color: var(--text-light);">{{ current_user.id_proof_number or 'Not provided' }}</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <p style="color: var(--text-gray); margin-bottom: 0.5rem;">Address (as per RC)</p>
+                <p style="color: var(--text-light); line-height: 1.6;">{{ current_user.address or 'Not provided' }}</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button class="btn btn-primary" onclick="document.getElementById('editProfileModal').style.display='flex'">Edit Profile</button>
+            <button class="btn btn-secondary">Change Password</button>
+        </div>
+    </div>
+    
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 2rem;">
+        <div class="glass-card" style="max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--accent-cyan);">Edit Profile & Seller Details</h3>
+                <button onclick="document.getElementById('editProfileModal').style.display='none'" style="background: none; border: none; color: var(--text-light); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <form method="POST" action="{{ url_for('auth.update_profile') }}">
+                <!-- Basic Details -->
+                <h4 style="color: var(--accent-orange); margin-bottom: 1rem;">Basic Details</h4>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="full_name" class="form-input" value="{{ current_user.full_name or '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number *</label>
+                    <input type="tel" name="phone" class="form-input" value="{{ current_user.phone or '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Riding Experience</label>
+                    <select name="riding_experience" class="form-select">
+                        <option value="beginner" {% if current_user.riding_experience == 'beginner' %}selected{% endif %}>Beginner</option>
+                        <option value="intermediate" {% if current_user.riding_experience == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="expert" {% if current_user.riding_experience == 'expert' %}selected{% endif %}>Expert</option>
+                        <option value="none" {% if current_user.riding_experience == 'none' %}selected{% endif %}>None</option>
+                    </select>
+                </div>
+                
+                <!-- Seller Details -->
+                <h4 style="color: var(--accent-orange); margin: 2rem 0 1rem;">Seller Details (For Resale)</h4>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name (as per RC)</label>
+                    <input type="text" name="rc_full_name" class="form-input" value="{{ current_user.rc_full_name or '' }}" placeholder="Enter name exactly as shown on RC">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Address (as per RC or current address proof)</label>
+                    <textarea name="address" class="form-textarea" rows="3" placeholder="Enter complete address">{{ current_user.address or '' }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ID Proof Type</label>
+                    <select name="id_proof_type" class="form-select">
+                        <option value="">Select ID Proof...</option>
+                        <option value="aadhaar" {% if current_user.id_proof_type == 'aadhaar' %}selected{% endif %}>Aadhaar Card</option>
+                        <option value="pan" {% if current_user.id_proof_type == 'pan' %}selected{% endif %}>PAN Card</option>
+                        <option value="voter_id" {% if current_user.id_proof_type == 'voter_id' %}selected{% endif %}>Voter ID</option>
+                        <option value="driving_license" {% if current_user.id_proof_type == 'driving_license' %}selected{% endif %}>Driving License</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ID Proof Number</label>
+                    <input type="text" name="id_proof_number" class="form-input" value="{{ current_user.id_proof_number or '' }}" placeholder="Enter ID proof number">
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('editProfileModal').style.display='none'">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

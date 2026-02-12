@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Maintenance Schedule - {{ user_bike.bike.brand }} {{ user_bike.bike.model }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem;">
+        Maintenance <span class="gradient-text">Schedule</span>
+    </h1>
+    <h2 style="color: var(--text-gray); margin-bottom: 3rem;">
+        {{ user_bike.bike.brand }} {{ user_bike.bike.model }} • {{ user_bike.registration_number }}
+    </h2>
+    
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">Current Status</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">Current Odometer</p>
+                <p style="color: var(--text-light); font-size: 1.3rem; font-weight: 600;">{{ user_bike.current_km }} km</p>
+            </div>
+            <div>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">Bike Condition</p>
+                <p style="color: var(--accent-orange); font-size: 1.3rem; font-weight: 600; text-transform: capitalize;">{{ user_bike.bike_condition }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Maintenance Predictions -->
+    <div class="glass-card">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📋 Upcoming Maintenance</h3>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Last Service</th>
+                        <th>KM Since Service</th>
+                        <th>Due In</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prediction in predictions %}
+                    <tr style="{% if prediction.status == 'overdue' %}background: rgba(255, 107, 53, 0.1);{% elif prediction.status == 'critical' %}background: rgba(255, 193, 7, 0.1);{% endif %}">
+                        <td style="font-weight: 600;">{{ prediction.component }}</td>
+                        <td>{{ prediction.last_service_km }} km</td>
+                        <td>{{ prediction.km_since_service }} km</td>
+                        <td>{{ prediction.km_until_service }} km ({{ prediction.days_until_service }} days)</td>
+                        <td>{{ prediction.due_date }}</td>
+                        <td>
+                            {% if prediction.status == 'overdue' %}
+                                <span style="background: var(--accent-orange); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem;">⚠️ Overdue</span>
+                            {% elif prediction.status == 'critical' %}
+                                <span style="background: #ffc107; color: #000; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem;">⚡ Critical</span>
+                            {% elif prediction.status == 'high' %}
+                                <span style="background: rgba(255, 193, 7, 0.3); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem;">🔶 High</span>
+                            {% elif prediction.status == 'medium' %}
+                                <span style="background: rgba(0, 217, 255, 0.3); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem;">🔵 Medium</span>
+                            {% else %}
+                                <span style="background: rgba(76, 175, 80, 0.3); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem;">✅ Low</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="{{ url_for('maintenance.history', bike_id=user_bike.id) }}" class="btn btn-secondary">View Service History</a>
+    </div>
+</div>
+{% endblock %}

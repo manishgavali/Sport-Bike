@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Sport Bike Ecosystem - Let's Ride The Future</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home-modern.css') }}">
+</head>
+<body>
+    <!-- Decorative Floating Elements -->
+    <div class="floating-circle circle-1"></div>
+    <div class="floating-circle circle-2"></div>
+    <div class="floating-circle circle-3"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="modern-navbar">
+        <div class="nav-container">
+            <div class="logo-section">
+                <div class="logo-icon">🏍️</div>
+                <span class="logo-text">SSBE</span>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('index') }}" class="nav-link active">Home</a></li>
+                <li><a href="{{ url_for('comparison.index') }}" class="nav-link">Products</a></li>
+                <li><a href="{{ url_for('simulator.index') }}" class="nav-link">Simulator</a></li>
+                <li><a href="{{ url_for('community.index') }}" class="nav-link">Community</a></li>
+            </ul>
+            
+            <div class="nav-buttons">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard.index') }}" class="btn-nav btn-primary-nav">Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn-nav btn-login">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-modern">
+        <div class="hero-container">
+            <!-- Left Content -->
+            <div class="hero-left">
+                <h1 class="hero-heading">
+                    LET'S RIDE THE<br>
+                    <span class="hero-heading-accent">FUTURE</span>
+                </h1>
+                <p class="hero-description">
+                    Simple and sleek design<br>
+                    with user in mind.
+                </p>
+                <button onclick="window.location.href='{{ url_for('auth.register') }}'" class="btn-get-started">
+                    Get Started
+                </button>
+                
+                <!-- Stats -->
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <h3>500+</h3>
+                        <p>Bikes Tracked</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>10K+</h3>
+                        <p>Active Riders</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Content - Bike Image -->
+            <div class="hero-right">
+                <div class="bike-showcase">
+                    <img src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=800&h=600&fit=crop" alt="Electric Sport Bike" class="bike-image" onerror="this.src='{{ url_for('static', filename='images/logo/hero-bike.png') }}'">
+                    
+                    <!-- Bike Info Cards -->
+                    <div class="info-card info-card-1">
+                        <div class="info-label">Max Speed</div>
+                        <div class="info-value">200 km/h</div>
+                    </div>
+                    
+                    <div class="info-card info-card-2">
+                        <div class="info-label">Range</div>
+                        <div class="info-value">300 km</div>
+                    </div>
+                    
+                    <div class="info-card info-card-3">
+                        <div class="info-label">0-100</div>
+                        <div class="info-value">3.5s</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Arrows -->
+        <button class="nav-arrow nav-arrow-left" onclick="previousSlide()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
+        <button class="nav-arrow nav-arrow-right" onclick="nextSlide()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </button>
+        
+        <!-- Slide Indicators -->
+        <div class="slide-indicators">
+            <span class="indicator active"></span>
+            <span class="indicator"></span>
+            <span class="indicator"></span>
+            <span class="indicator"></span>
+        </div>
+        
+        <!-- Side Navigation -->
+        <div class="side-nav">
+            <a href="#" class="side-link">FACEBOOK</a>
+            <a href="#" class="side-link">INSTAGRAM</a>
+            <a href="#" class="side-link">TWITTER</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title">Why Choose SSBE?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>AI-Powered</h3>
+                    <p>95% prediction accuracy for maintenance and performance</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Safety First</h3>
+                    <p>Real-time safety analysis and accident prevention</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Analytics</h3>
+                    <p>Comprehensive performance tracking and insights</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Smart Maintenance</h3>
+                    <p>Predictive maintenance alerts and recommendations</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let currentSlide = 0;
+        const bikes = [
+            {
+                name: "Electric Sport",
+                speed: "200 km/h",
+                range: "300 km",
+                acceleration: "3.5s"
+            },
+            {
+                name: "Racing Beast",
+                speed: "280 km/h",
+                range: "250 km",
+                acceleration: "2.8s"
+            },
+            {
+                name: "Urban Rider",
+                speed: "160 km/h",
+                range: "400 km",
+                acceleration: "4.2s"
+            },
+            {
+                name: "Adventure Pro",
+                speed: "180 km/h",
+                range: "500 km",
+                acceleration: "3.9s"
+            }
+        ];
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % bikes.length;
+            updateSlide();
+        }
+
+        function previousSlide() {
+            currentSlide = (currentSlide - 1 + bikes.length) % bikes.length;
+            updateSlide();
+        }
+
+        function updateSlide() {
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((ind, idx) => {
+                ind.classList.toggle('active', idx === currentSlide);
+            });
+            
+            // Update bike info
+            document.querySelector('.info-card-1 .info-value').textContent = bikes[currentSlide].speed;
+            document.querySelector('.info-card-2 .info-value').textContent = bikes[currentSlide].range;
+            document.querySelector('.info-card-3 .info-value').textContent = bikes[currentSlide].acceleration;
+        }
+
+        // Click indicators to change slide
+        document.querySelectorAll('.indicator').forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                currentSlide = index;
+                updateSlide();
+            });
+        });
+
+        // Auto slide every 5 seconds
+        setInterval(nextSlide, 5000);
+    </script>
+</body>
+</html>

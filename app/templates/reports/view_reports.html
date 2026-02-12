@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+
+{% block title %}View Safety Reports - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+        <h1 class="fade-in">
+            Safety <span class="gradient-text">Reports</span> 🚨
+        </h1>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{{ url_for('reports.submit_report') }}" class="btn btn-primary">
+                + Submit Report
+            </a>
+        </div>
+    </div>
+    
+    <!-- Statistics Overview -->
+    <div class="stats-container" style="margin-bottom: 3rem;">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">{{ total_reports if total_reports is defined else 127 }}</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🚑</div>
+            <div class="stat-value">{{ accident_count if accident_count is defined else 45 }}</div>
+            <div class="stat-label">Accidents</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value">{{ near_miss_count if near_miss_count is defined else 38 }}</div>
+            <div class="stat-label">Near Misses</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🔧</div>
+            <div class="stat-value">{{ mechanical_count if mechanical_count is defined else 32 }}</div>
+            <div class="stat-label">Mechanical Issues</div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <select class="form-select" id="filterType" onchange="filterReports()">
+                <option value="all">All Types</option>
+                <option value="accident">Accidents</option>
+                <option value="near_miss">Near Misses</option>
+                <option value="mechanical">Mechanical Issues</option>
+                <option value="road_hazard">Road Hazards</option>
+                <option value="theft">Theft/Vandalism</option>
+                <option value="other">Other</option>
+            </select>
+            
+            <select class="form-select" id="filterSeverity" onchange="filterReports()">
+                <option value="all">All Severities</option>
+                <option value="minor">Minor</option>
+                <option value="moderate">Moderate</option>
+                <option value="major">Major</option>
+                <option value="critical">Critical</option>
+            </select>
+            
+            <select class="form-select" id="filterLocation" onchange="filterReports()">
+                <option value="all">All Locations</option>
+                <option value="bangalore">Bangalore</option>
+                <option value="mumbai">Mumbai</option>
+                <option value="delhi">Delhi</option>
+                <option value="pune">Pune</option>
+                <option value="hyderabad">Hyderabad</option>
+            </select>
+            
+            <select class="form-select" id="filterTimeRange" onchange="filterReports()">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Reports List -->
+    <div style="display: grid; gap: 1.5rem;">
+        {% if reports %}
+            {% for report in reports %}
+            <div class="glass-card report-card" data-type="{{ report.incident_type }}" data-severity="{{ report.severity }}">
+                <div style="display: flex; gap: 2rem;">
+                    <!-- Report Icon & Type -->
+                    <div style="text-align: center; min-width: 80px;">
+                        <div style="font-size: 3rem; margin-bottom: 0.5rem;">
+                            {% if report.incident_type == 'accident' %}🚑
+                            {% elif report.incident_type == 'near_miss' %}⚡
+                            {% elif report.incident_type == 'mechanical' %}🔧
+                            {% elif report.incident_type == 'road_hazard' %}🛣️
+                            {% elif report.incident_type == 'theft' %}🔒
+                            {% else %}📋{% endif %}
+                        </div>
+                        <span class="report-type-badge {{ report.incident_type }}">
+                            {{ report.incident_type.replace('_', ' ').title() }}
+                        </span>
+                    </div>
+                    
+                    <!-- Report Details -->
+                    <div style="flex: 1;">
+                        <!-- Header -->
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">
+                                    {{ report.incident_type.replace('_', ' ').title() }} Report
+                                </h3>
+                                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                    <span style="color: var(--text-gray); font-size: 0.9rem;">
+                                        📅 {{ report.incident_date.strftime('%B %d, %Y') if report.incident_date else 'Date not specified' }}
+                                    </span>
+                                    <span style="color: var(--text-gray); font-size: 0.9rem;">
+                                        📍 {{ report.location }}
+                                    </span>
+                                    {% if report.bike %}
+                                    <span style="color: var(--accent-cyan); font-size: 0.9rem;">
+                                        🏍️ {{ report.bike.brand }} {{ report.bike.model }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Severity Badge -->
+                            <span class="severity-badge-display {{ report.severity }}">
+                                {{ report.severity.upper() }}
+                            </span>
+                        </div>
+                        
+                        <!-- Description -->
+                        <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 1rem;">
+                            {{ report.description[:200] }}{% if report.description|length > 200 %}...{% endif %}
+                        </p>
+                        
+                        <!-- Metadata -->
+                        <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                            {% if report.injuries and report.injuries != 'none' %}
+                            <div style="color: var(--accent-orange);">
+                                🚑 Injuries: {{ report.injuries.replace('_', ' ').title() }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if report.bike_damage and report.bike_damage != 'none' %}
+                            <div style="color: var(--accent-orange);">
+                                🔧 Damage: {{ report.bike_damage.replace('_', ' ').title() }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if report.weather %}
+                            <div style="color: var(--text-gray);">
+                                🌤️ {{ report.weather.title() }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if report.police_report == 'yes' %}
+                            <div style="color: var(--accent-cyan);">
+                                👮 Police Report Filed
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div style="display: flex; gap: 1rem;">
+                            <a href="{{ url_for('reports.view_single_report', report_id=report.id) }}" class="btn btn-primary" style="font-size: 0.9rem; padding: 0.6rem 1.2rem;">
+                                View Full Report
+                            </a>
+                            {% if current_user.is_authenticated and current_user.id == report.user_id %}
+                            <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.6rem 1.2rem;">
+                                Edit
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="glass-card" style="text-align: center; padding: 4rem;">
+                <div style="font-size: 5rem; margin-bottom: 1rem;">📋</div>
+                <h2 style="color: var(--text-gray); margin-bottom: 1rem;">No Reports Found</h2>
+                <p style="color: var(--text-gray); margin-bottom: 2rem;">
+                    Be the first to contribute to rider safety by submitting a report
+                </p>
+                <a href="{{ url_for('reports.submit_report') }}" class="btn btn-primary">
+                    Submit First Report
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if reports and reports|length >= 10 %}
+    <div style="display: flex; justify-content: center; margin-top: 3rem; gap: 0.5rem;">
+        <button class="btn btn-secondary">Previous</button>
+        <button class="btn btn-primary">1</button>
+        <button class="btn btn-secondary">2</button>
+        <button class="btn btn-secondary">3</button>
+        <button class="btn btn-secondary">Next</button>
+    </div>
+    {% endif %}
+    
+    <!-- Safety Tips -->
+    <div class="glass-card" style="margin-top: 3rem; background: rgba(0, 217, 255, 0.1); border-left: 4px solid var(--accent-cyan);">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">🛡️ Safety Tips</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <strong style="color: var(--text-light);">Always wear proper gear</strong>
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem;">
+                    Helmet, gloves, jacket, and boots can save your life
+                </p>
+            </div>
+            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <strong style="color: var(--text-light);">Stay visible</strong>
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem;">
+                    Use headlights and reflective gear, especially at night
+                </p>
+            </div>
+            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <strong style="color: var(--text-light);">Regular maintenance</strong>
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem;">
+                    Check brakes, tires, and lights before every ride
+                </p>
+            </div>
+            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <strong style="color: var(--text-light);">Defensive riding</strong>
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem;">
+                    Anticipate other drivers' actions and keep safe distance
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.report-card {
+    transition: all 0.3s ease;
+}
+
+.report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow);
+}
+
+.report-type-badge {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.report-type-badge.accident {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.report-type-badge.near_miss {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.report-type-badge.mechanical {
+    background: rgba(0, 217, 255, 0.2);
+    color: var(--accent-cyan);
+}
+
+.report-type-badge.road_hazard {
+    background: rgba(255, 107, 53, 0.2);
+    color: var(--accent-orange);
+}
+
+.report-type-badge.theft {
+    background: rgba(156, 39, 176, 0.2);
+    color: #9c27b0;
+}
+
+.report-type-badge.other {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-gray);
+}
+
+.severity-badge-display {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.severity-badge-display.minor {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.severity-badge-display.moderate {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.severity-badge-display.major {
+    background: rgba(255, 107, 53, 0.2);
+    color: var(--accent-orange);
+}
+
+.severity-badge-display.critical {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+</style>
+
+<script>
+function filterReports() {
+    const type = document.getElementById('filterType').value;
+    const severity = document.getElementById('filterSeverity').value;
+    const location = document.getElementById('filterLocation').value.toLowerCase();
+    const timeRange = document.getElementById('filterTimeRange').value;
+    
+    const reportCards = document.querySelectorAll('.report-card');
+    
+    reportCards.forEach(card => {
+        const cardType = card.dataset.type;
+        const cardSeverity = card.dataset.severity;
+        const cardLocation = card.textContent.toLowerCase();
+        
+        const matchesType = type === 'all' || cardType === type;
+        const matchesSeverity = severity === 'all' || cardSeverity === severity;
+        const matchesLocation = location === 'all' || cardLocation.includes(location);
+        
+        if (matchesType && matchesSeverity && matchesLocation) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

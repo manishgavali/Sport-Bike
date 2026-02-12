@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bikes - Dashboard{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 class="fade-in">My Bikes 🏍️</h1>
+        <button class="btn btn-primary" onclick="document.getElementById('addBikeModal').style.display='flex'">+ Add New Bike</button>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="margin-bottom: 1.5rem; padding: 1rem; border-radius: 10px; background: {% if category == 'success' %}rgba(0, 255, 136, 0.1){% elif category == 'error' %}rgba(255, 68, 68, 0.1){% else %}rgba(255, 187, 0, 0.1){% endif %}; border-left: 4px solid {% if category == 'success' %}var(--success-green){% elif category == 'error' %}var(--error-red){% else %}var(--accent-orange){% endif %};">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    {% if user_bikes %}
+        <div style="display: grid; gap: 2rem;">
+            {% for user_bike in user_bikes %}
+            <div class="glass-card fade-in">
+                <div style="display: grid; grid-template-columns: 200px 1fr; gap: 2rem;">
+                    <div style="width: 200px; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden;">
+                        {% if user_bike.bike_images %}
+                            {% set images = user_bike.bike_images | fromjson if user_bike.bike_images is string else [] %}
+                            {% if images %}
+                                <img src="{{ url_for('static', filename=images[0]) }}" alt="{{ user_bike.bike.brand }} {{ user_bike.bike.model }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🏍️</div>
+                            {% endif %}
+                        {% else %}
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🏍️</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <h2 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">
+                            {{ user_bike.bike.brand }} {{ user_bike.bike.model }}
+                        </h2>
+                        <p style="color: var(--text-gray); margin-bottom: 1rem;">{{ user_bike.registration_number }}</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <p style="color: var(--text-gray); font-size: 0.85rem;">Current KM</p>
+                                <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">{{ user_bike.current_km }}</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-gray); font-size: 0.85rem;">Purchase Date</p>
+                                <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">{{ user_bike.purchase_date.strftime('%b %Y') if user_bike.purchase_date else 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-gray); font-size: 0.85rem;">Condition</p>
+                                <p style="color: var(--accent-orange); font-size: 1.2rem; font-weight: 600;">{{ user_bike.bike_condition|capitalize }}</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-gray); font-size: 0.85rem;">Purchase Price</p>
+                                <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">₹{{ '{:,.0f}'.format(user_bike.purchase_price) if user_bike.purchase_price else 'N/A' }}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <a href="{{ url_for('maintenance.schedule', bike_id=user_bike.id) }}" class="btn btn-primary">Maintenance Schedule</a>
+                            <a href="{{ url_for('maintenance.history', bike_id=user_bike.id) }}" class="btn btn-secondary">Service History</a>
+                            <a href="{{ url_for('dashboard.bike_details', bike_id=user_bike.id) }}" class="btn btn-orange">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass-card" style="text-align: center; padding: 4rem;">
+            <div style="font-size: 5rem; margin-bottom: 1rem;">🏍️</div>
+            <h2 style="color: var(--text-gray); margin-bottom: 1rem;">No bikes added yet</h2>
+            <p style="color: var(--text-gray); margin-bottom: 2rem;">Start tracking your sport bike's performance and maintenance</p>
+            <button class="btn btn-primary" onclick="document.getElementById('addBikeModal').style.display='flex'">Add Your First Bike</button>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Bike Modal -->
+<div id="addBikeModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); z-index: 1000; align-items: center; justify-content: center; padding: 2rem;">
+    <div class="glass-card" style="max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 style="color: var(--accent-cyan);">Add Bike to Your Garage</h2>
+            <button onclick="document.getElementById('addBikeModal').style.display='none'" style="background: none; border: none; color: var(--text-gray); font-size: 2rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+        </div>
+        
+        <form method="POST" action="{{ url_for('dashboard.add_bike') }}" enctype="multipart/form-data">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label">Select Your Bike *</label>
+                <select name="bike_id" class="form-select" size="8" required style="height: auto; max-height: 200px; overflow-y: auto;">
+                    {% for bike in all_bikes %}
+                    <option value="{{ bike.id }}">
+                        {{ bike.brand }} {{ bike.model }} ({{ bike.year }}) - ₹{{ '{:,.0f}'.format(bike.price) if bike.price else 'N/A' }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label">Registration Number</label>
+                <input type="text" name="registration_number" class="form-input" placeholder="e.g., DL01AB1234">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label">Upload Bike Images 📸</label>
+                <input type="file" name="bike_images" class="form-input" multiple accept="image/*" style="padding: 0.5rem;">
+                <small style="color: var(--text-gray); margin-top: 0.5rem; display: block;">You can select multiple images (JPEG, PNG, GIF, WebP)</small>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label">Purchase Date</label>
+                    <input type="date" name="purchase_date" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Purchase Price (₹)</label>
+                    <input type="number" name="purchase_price" class="form-input" step="1000" placeholder="e.g., 185000">
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label">Current Odometer (km)</label>
+                    <input type="number" name="current_km" class="form-input" value="0" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Condition</label>
+                    <select name="bike_condition" class="form-select">
+                        <option value="excellent">Excellent</option>
+                        <option value="good" selected>Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="needs_repair">Needs Repair</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('addBikeModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add to Garage</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-input, .form-select {
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+    border-radius: 8px;
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+.form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.alert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}

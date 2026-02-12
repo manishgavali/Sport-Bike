@@ -1,0 +1,458 @@
+{% extends 'base.html' %}
+
+{% block title %}Compare Bikes{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem;">
+        🏍️ Top 30 <span class="gradient-text">Sports Bikes</span> in India
+    </h1>
+    <p style="color: var(--text-gray); margin-bottom: 3rem;">Select 2 or more bikes to compare performance, specs, and costs</p>
+    
+    <form method="POST" action="{{ url_for('comparison.results') }}" id="comparisonForm">
+        
+        <!-- Entry / Beginner Sports Bikes -->
+        <div style="margin-bottom: 3rem;">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                🔹 Entry / Beginner Sports Bikes
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="yamaha-r15-v4" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/yamaha-r15-v4.jpg') }}" alt="Yamaha R15 V4" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Yamaha R15 V4</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Popular 155cc supersport</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹1,97,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="bajaj-pulsar-rs200" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/bajaj-pulsar-rs200.jpg') }}" alt="Bajaj Pulsar RS 200" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Bajaj Pulsar RS 200</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Affordable fully-faired 200cc</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹1,72,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="ktm-rc160" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/ktm-rc160.jpg') }}" alt="KTM RC 160" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">KTM RC 160</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">New sporty entry-level model</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹1,85,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="ktm-rc125" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/ktm-rc125.jpg') }}" alt="KTM RC 125" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">KTM RC 125</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Light and nimble racetrack-style</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹1,90,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="suzuki-gixxer-sf150" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/suzuki-gixxer-sf150.jpg') }}" alt="Suzuki Gixxer SF 150" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Suzuki Gixxer SF 150</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Sport-styled faired 150cc</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹1,48,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="suzuki-gixxer-sf250" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/suzuki-gixxer-sf250.jpg') }}" alt="Suzuki Gixxer SF 250" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Suzuki Gixxer SF 250</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Larger faired variant with better performance</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹2,00,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="bajaj-pulsar-ns200" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/bajaj-pulsar-ns200.jpg') }}" alt="Bajaj Pulsar NS200" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Bajaj Pulsar NS200</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Sport-oriented naked bike</p>
+                        <p style="color: var(--text-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹1,60,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="keeway-rr300" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/keeway-rr300.jpg') }}" alt="Keeway RR 300" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Keeway RR 300</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Newly launched sporty machine</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹1,99,000</p>
+                    </div>
+                </label>
+                
+            </div>
+        </div>
+        
+        <!-- Performance / Mid-Range Sports Bikes -->
+        <div style="margin-bottom: 3rem;">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                🏁 Performance / Mid-Range Sports Bikes
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="tvs-apache-rr310" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/tvs-apache-rr310.jpg') }}" alt="TVS Apache RR 310" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">TVS Apache RR 310</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Popular with ride modes</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹2,75,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="bmw-g310rr" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/bmw-g310rr.jpg') }}" alt="BMW G310 RR" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">BMW G310 RR</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Premium 312cc racer style</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹3,30,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="ktm-rc200" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/ktm-rc200.jpg') }}" alt="KTM RC 200" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">KTM RC 200</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">200cc sport performance</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹2,25,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="ktm-rc390" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/ktm-rc390.jpg') }}" alt="KTM RC 390" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">KTM RC 390</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Powerful and agile mid-range</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹3,15,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="kawasaki-ninja300" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/kawasaki-ninja300.jpg') }}" alt="Kawasaki Ninja 300" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Kawasaki Ninja 300</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Twin-cylinder sport classic</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹3,43,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="kawasaki-ninja400" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/kawasaki-ninja400.jpg') }}" alt="Kawasaki Ninja 400" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Kawasaki Ninja 400</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">More powerful midweight</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹5,24,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="yamaha-r3" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/yamaha-r3.jpg') }}" alt="Yamaha YZF-R3" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Yamaha YZF-R3</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Refined twin-cylinder sport</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹4,65,000</p>
+                    </div>
+                </label>
+                
+            </div>
+        </div>
+        
+        <!-- Higher-Performance / Premium Sports Bikes -->
+        <div style="margin-bottom: 3rem;">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                🏆 Higher-Performance / Premium Sports Bikes
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="aprilia-rs457" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/aprilia-rs457.jpg') }}" alt="Aprilia RS 457" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Aprilia RS 457</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Twin-cylinder performance bike</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹4,10,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="kawasaki-ninja650" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/kawasaki-ninja650.jpg') }}" alt="Kawasaki Ninja 650" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Kawasaki Ninja 650</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Midweight twin sports-tourer</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹7,10,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="honda-cbr650r" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/honda-cbr650r.jpg') }}" alt="Honda CBR650R" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Honda CBR650R</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">650cc inline-4 performance</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹9,25,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="aprilia-rs660" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/aprilia-rs660.jpg') }}" alt="Aprilia RS 660" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Aprilia RS 660</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Premium twin for serious riders</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹13,90,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="kawasaki-zx6r" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/kawasaki-zx6r.jpg') }}" alt="Kawasaki Ninja ZX-6R" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Kawasaki Ninja ZX-6R</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">600cc sports machine (imported)</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹12,50,000</p>
+                    </div>
+                </label>
+                
+            </div>
+        </div>
+        
+        <!-- Superbikes / Flagship Sports Machines -->
+        <div style="margin-bottom: 3rem;">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                🔥 Superbikes / Flagship Sports Machines
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="suzuki-hayabusa" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/suzuki-hayabusa.jpg') }}" alt="Suzuki Hayabusa" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Suzuki Hayabusa GSX1300R</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Legendary high-speed sportbike</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹18,70,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="kawasaki-zx10r" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/kawasaki-zx10r.jpg') }}" alt="Kawasaki ZX-10R" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Kawasaki ZX-10R</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">World championship-level superbike</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹16,90,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="kawasaki-h2" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/kawasaki-h2.jpg') }}" alt="Kawasaki Ninja H2" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Kawasaki Ninja H2</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Ultra-high performance hyperbike</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹36,80,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="ducati-panigale-v4" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/ducati-panigale-v4.jpg') }}" alt="Ducati Panigale V4" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Ducati Panigale V4 R</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Italian superbike flagship</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹52,00,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="ducati-superleggera" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/ducati-superleggera.jpg') }}" alt="Ducati Superleggera V4" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Ducati Superleggera V4</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Super-premium lightweight superbike</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹1,12,00,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="bmw-s1000rr" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/bmw-s1000rr.jpg') }}" alt="BMW S1000RR" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">BMW S1000RR</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">German superbike with advanced electronics</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹20,95,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="ktm-1290-super-duke-rr" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/ktm-1290-super-duke-rr.jpg') }}" alt="KTM 1290 Super Duke RR" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">KTM 1290 Super Duke RR</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Track-ready beast</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹22,50,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="honda-cbr1000rr" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/honda-cbr1000rr.jpg') }}" alt="Honda CBR1000RR-R Fireblade" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Honda CBR1000RR-R Fireblade</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Iconic Japanese superbike (imported)</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹28,00,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="yamaha-r1" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/yamaha-r1.jpg') }}" alt="Yamaha YZF-R1" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Yamaha YZF-R1</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Yamaha's flagship liter-class (imported)</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹24,50,000</p>
+                    </div>
+                </label>
+                
+                <label class="glass-card bike-card" style="cursor: pointer; transition: all 0.3s ease;">
+                    <input type="checkbox" name="bike_ids[]" value="triumph-daytona" style="display: none;" class="bike-checkbox">
+                    <div class="bike-card-content">
+                        <div style="width: 100%; height: 150px; background: rgba(0, 217, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ url_for('static', filename='images/bikes/triumph-daytona.jpg') }}" alt="Triumph Daytona" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 4rem;\'>🏍️</div>';">
+                        </div>
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Triumph Daytona 765</h3>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">British superbike class (imported)</p>
+                        <p style="color: var(--accent-cyan); font-size: 1rem; font-weight: 600; margin-top: 0.5rem;">₹14,50,000</p>
+                    </div>
+                </label>
+                
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button type="submit" class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem;">
+                Compare Selected Bikes
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.bike-checkbox:checked + .bike-card-content {
+    border: 2px solid var(--accent-cyan);
+    box-shadow: var(--shadow-glow);
+}
+
+.bike-card img {
+    transition: transform 0.3s ease;
+}
+
+.bike-card:hover img {
+    transform: scale(1.05);
+}
+
+.bike-card-content {
+    padding: 1rem;
+}
+</style>
+
+<script>
+// Image error fallback
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.bike-card img').forEach(img => {
+        img.onerror = function() {
+            this.style.display = 'none';
+            const parent = this.parentElement;
+            parent.style.display = 'flex';
+            parent.style.alignItems = 'center';
+            parent.style.justifyContent = 'center';
+            parent.innerHTML = '<div style="font-size: 4rem;">🏍️</div>';
+        };
+    });
+});
+</script>
+
+<script src="{{ url_for('static', filename='js/comparison.js') }}"></script>
+{% endblock %}

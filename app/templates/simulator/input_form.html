@@ -1,0 +1,498 @@
+{% extends 'base.html' %}
+
+{% block title %}Performance Simulator - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem; text-align: center;">
+        Performance <span class="gradient-text">Simulator</span> ⚡
+    </h1>
+    <p style="color: var(--text-gray); text-align: center; margin-bottom: 3rem;">
+        AI-powered simulation of your bike's performance under different conditions
+    </p>
+    
+    <!-- Info Banner -->
+    <div class="glass-card" style="margin-bottom: 3rem; background: rgba(0, 217, 255, 0.1); border-left: 4px solid var(--accent-cyan);">
+        <div style="display: flex; align-items: start; gap: 1rem;">
+            <div style="font-size: 2rem;">🧠</div>
+            <div>
+                <h3 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">How It Works</h3>
+                <p style="color: var(--text-light); line-height: 1.6; margin: 0;">
+                    Our AI simulator uses advanced physics models to predict how your bike will perform under various conditions. 
+                    Input your bike details and riding parameters to see estimated power output, acceleration, fuel consumption, 
+                    and component wear patterns. Perfect for planning rides, understanding your bike's limits, and optimizing performance.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+        
+        <!-- Input Form -->
+        <div class="glass-card">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Simulation Parameters</h2>
+            
+            <form method="POST" action="{{ url_for('simulator.simulate') }}" id="simulatorForm">
+                
+                <!-- Bike Selection -->
+                <div class="form-group">
+                    <label class="form-label">Select Bike *</label>
+                    <select name="bike_id" id="bikeSelect" class="form-select" size="10" required onchange="loadBikeSpecs(this.value)" style="height: auto; max-height: 300px; overflow-y: auto;">
+                        {% if user_bikes %}
+                            <optgroup label="Your Bikes">
+                                {% for user_bike in user_bikes %}
+                                <option value="{{ user_bike.bike.id }}" 
+                                        data-power="{{ user_bike.bike.specs.max_power if user_bike.bike.specs else 0 }}"
+                                        data-torque="{{ user_bike.bike.specs.max_torque if user_bike.bike.specs else 0 }}"
+                                        data-weight="{{ user_bike.bike.specs.kerb_weight if user_bike.bike.specs else 0 }}"
+                                        data-cc="{{ user_bike.bike.specs.engine_cc if user_bike.bike.specs else 0 }}">
+                                    {{ user_bike.bike.brand }} {{ user_bike.bike.model }} ({{ user_bike.bike.year }})
+                                </option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endif %}
+                        <optgroup label="All Bikes">
+                            {% for bike in all_bikes %}
+                            <option value="{{ bike.id }}"
+                                    data-power="{{ bike.specs.max_power if bike.specs else 0 }}"
+                                    data-torque="{{ bike.specs.max_torque if bike.specs else 0 }}"
+                                    data-weight="{{ bike.specs.kerb_weight if bike.specs else 0 }}"
+                                    data-cc="{{ bike.specs.engine_cc if bike.specs else 0 }}">
+                                {{ bike.brand }} {{ bike.model }} ({{ bike.year }})
+                            </option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <!-- Bike Quick Stats Display -->
+                <div id="bikeStatsDisplay" style="display: none; margin-bottom: 1.5rem; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem;">
+                        <div>
+                            <span style="color: var(--text-gray); font-size: 0.85rem;">Max Power</span>
+                            <div style="color: var(--accent-cyan); font-weight: 600;" id="bikePower">-</div>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-gray); font-size: 0.85rem;">Max Torque</span>
+                            <div style="color: var(--accent-cyan); font-weight: 600;" id="bikeTorque">-</div>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-gray); font-size: 0.85rem;">Kerb Weight</span>
+                            <div style="color: var(--accent-cyan); font-weight: 600;" id="bikeWeight">-</div>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-gray); font-size: 0.85rem;">Engine CC</span>
+                            <div style="color: var(--accent-cyan); font-weight: 600;" id="bikeCC">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--text-light); margin: 2rem 0 1rem; font-size: 1.1rem; border-bottom: 2px solid rgba(0, 217, 255, 0.3); padding-bottom: 0.5rem;">
+                    Rider & Load
+                </h3>
+                
+                <!-- Rider Weight -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Rider Weight (kg) *
+                        <span style="color: var(--text-gray); font-size: 0.85rem; font-weight: normal;">
+                            (including gear)
+                        </span>
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <input type="range" name="rider_weight" id="riderWeight" class="slider" 
+                               min="50" max="120" value="70" step="1" required
+                               oninput="updateSliderValue(this, 'riderWeightValue')">
+                        <span id="riderWeightValue" style="color: var(--accent-cyan); font-weight: 700; min-width: 60px;">70 kg</span>
+                    </div>
+                </div>
+                
+                <!-- Passenger -->
+                <div class="form-group">
+                    <label class="checkbox-label" style="background: rgba(0, 217, 255, 0.05); padding: 1rem; border-radius: 10px;">
+                        <input type="checkbox" name="has_passenger" id="hasPassenger" onchange="togglePassenger()">
+                        <span>Include Passenger</span>
+                    </label>
+                </div>
+                
+                <div class="form-group" id="passengerWeightGroup" style="display: none;">
+                    <label class="form-label">Passenger Weight (kg)</label>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <input type="range" name="passenger_weight" id="passengerWeight" class="slider" 
+                               min="40" max="100" value="60" step="1"
+                               oninput="updateSliderValue(this, 'passengerWeightValue')">
+                        <span id="passengerWeightValue" style="color: var(--accent-cyan); font-weight: 700; min-width: 60px;">60 kg</span>
+                    </div>
+                </div>
+                
+                <!-- Luggage -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Luggage Weight (kg)
+                        <span style="color: var(--text-gray); font-size: 0.85rem; font-weight: normal;">
+                            (optional)
+                        </span>
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <input type="range" name="luggage_weight" id="luggageWeight" class="slider" 
+                               min="0" max="30" value="0" step="1"
+                               oninput="updateSliderValue(this, 'luggageWeightValue')">
+                        <span id="luggageWeightValue" style="color: var(--accent-cyan); font-weight: 700; min-width: 60px;">0 kg</span>
+                    </div>
+                </div>
+                
+                <!-- Total Weight Display -->
+                <div style="padding: 1rem; background: rgba(255, 107, 53, 0.1); border-radius: 10px; border-left: 4px solid var(--accent-orange); margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-light); font-weight: 600;">Total Weight (Bike + Load)</span>
+                        <span id="totalWeight" style="color: var(--accent-orange); font-size: 1.5rem; font-weight: 700;">- kg</span>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--text-light); margin: 2rem 0 1rem; font-size: 1.1rem; border-bottom: 2px solid rgba(0, 217, 255, 0.3); padding-bottom: 0.5rem;">
+                    Environmental Conditions
+                </h3>
+                
+                <!-- Road Type -->
+                <div class="form-group">
+                    <label class="form-label">Road Type *</label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem;">
+                        <label class="radio-card">
+                            <input type="radio" name="road_type" value="city" required checked>
+                            <div class="radio-card-content">
+                                <div style="font-size: 2rem; margin-bottom: 0.3rem;">🏙️</div>
+                                <div style="font-weight: 600;">City</div>
+                                <div style="font-size: 0.8rem; color: var(--text-gray);">Stop-and-go</div>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="road_type" value="highway">
+                            <div class="radio-card-content">
+                                <div style="font-size: 2rem; margin-bottom: 0.3rem;">🛣️</div>
+                                <div style="font-weight: 600;">Highway</div>
+                                <div style="font-size: 0.8rem; color: var(--text-gray);">Consistent speed</div>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="road_type" value="track">
+                            <div class="radio-card-content">
+                                <div style="font-size: 2rem; margin-bottom: 0.3rem;">🏁</div>
+                                <div style="font-weight: 600;">Track</div>
+                                <div style="font-size: 0.8rem; color: var(--text-gray);">Performance</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Weather Condition -->
+                <div class="form-group">
+                    <label class="form-label">Weather Condition *</label>
+                    <select name="weather" class="form-select" required>
+                        <option value="sunny" selected>☀️ Clear/Sunny</option>
+                        <option value="cloudy">☁️ Cloudy</option>
+                        <option value="rainy">🌧️ Rainy</option>
+                        <option value="windy">💨 Windy</option>
+                        <option value="hot">🔥 Hot (35°C+)</option>
+                    </select>
+                </div>
+                
+                <!-- Altitude -->
+                <div class="form-group">
+                    <label class="form-label">Altitude (meters above sea level)</label>
+                    <select name="altitude" class="form-select">
+                        <option value="0" selected>Sea Level (0-500m)</option>
+                        <option value="500">Low Hills (500-1000m)</option>
+                        <option value="1000">Hills (1000-2000m)</option>
+                        <option value="2000">High Altitude (2000m+)</option>
+                    </select>
+                    <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                        ⛰️ Higher altitude = reduced engine power (~3% per 300m)
+                    </p>
+                </div>
+                
+                <h3 style="color: var(--text-light); margin: 2rem 0 1rem; font-size: 1.1rem; border-bottom: 2px solid rgba(0, 217, 255, 0.3); padding-bottom: 0.5rem;">
+                    Riding Style
+                </h3>
+                
+                <!-- Riding Style -->
+                <div class="form-group">
+                    <label class="form-label">Riding Style *</label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem;">
+                        <label class="radio-card">
+                            <input type="radio" name="riding_style" value="conservative" required>
+                            <div class="radio-card-content">
+                                <div style="font-size: 2rem; margin-bottom: 0.3rem;">🐢</div>
+                                <div style="font-weight: 600;">Conservative</div>
+                                <div style="font-size: 0.8rem; color: var(--text-gray);">Gentle acceleration</div>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="riding_style" value="moderate" checked>
+                            <div class="radio-card-content">
+                                <div style="font-size: 2rem; margin-bottom: 0.3rem;">🏍️</div>
+                                <div style="font-weight: 600;">Moderate</div>
+                                <div style="font-size: 0.8rem; color: var(--text-gray);">Balanced riding</div>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="riding_style" value="aggressive">
+                            <div class="radio-card-content">
+                                <div style="font-size: 2rem; margin-bottom: 0.3rem;">🔥</div>
+                                <div style="font-weight: 600;">Aggressive</div>
+                                <div style="font-size: 0.8rem; color: var(--text-gray);">Full throttle</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Distance for Simulation -->
+                <div class="form-group">
+                    <label class="form-label">Simulation Distance (km)</label>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <input type="range" name="distance" id="distance" class="slider" 
+                               min="10" max="500" value="100" step="10"
+                               oninput="updateSliderValue(this, 'distanceValue')">
+                        <span id="distanceValue" style="color: var(--accent-cyan); font-weight: 700; min-width: 70px;">100 km</span>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--text-light); margin: 2rem 0 1rem; font-size: 1.1rem; border-bottom: 2px solid rgba(0, 217, 255, 0.3); padding-bottom: 0.5rem;">
+                    Bike Condition (Optional)
+                </h3>
+                
+                <!-- Tire Pressure -->
+                <div class="form-group">
+                    <label class="form-label">Tire Pressure</label>
+                    <select name="tire_pressure" class="form-select">
+                        <option value="optimal" selected>✅ Optimal (As per manual)</option>
+                        <option value="low">⚠️ Low (-5 PSI)</option>
+                        <option value="high">⚠️ High (+5 PSI)</option>
+                    </select>
+                </div>
+                
+                <!-- Engine Condition -->
+                <div class="form-group">
+                    <label class="form-label">Engine Condition</label>
+                    <select name="engine_condition" class="form-select">
+                        <option value="excellent" selected>Excellent (Fresh service)</option>
+                        <option value="good">Good (Well maintained)</option>
+                        <option value="fair">Fair (Due for service)</option>
+                        <option value="poor">Poor (Overdue service)</option>
+                    </select>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 2rem; font-size: 1.1rem; padding: 1rem;">
+                    🚀 Run Simulation
+                </button>
+            </form>
+        </div>
+        
+        <!-- Info Panel -->
+        <div>
+            <!-- What You'll Get -->
+            <div class="glass-card" style="margin-bottom: 2rem;">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📊 What You'll Get</h3>
+                <div style="display: grid; gap: 1rem;">
+                    <div style="display: flex; gap: 1rem; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                        <div style="font-size: 2rem;">⚡</div>
+                        <div>
+                            <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">Adjusted Power Output</div>
+                            <div style="color: var(--text-gray); font-size: 0.9rem;">Real-world power considering weight, altitude, and conditions</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                        <div style="font-size: 2rem;">🚀</div>
+                        <div>
+                            <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">Performance Metrics</div>
+                            <div style="color: var(--text-gray); font-size: 0.9rem;">0-100 km/h time, top speed estimation, braking distance</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                        <div style="font-size: 2rem;">⛽</div>
+                        <div>
+                            <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">Fuel Consumption</div>
+                            <div style="color: var(--text-gray); font-size: 0.9rem;">Expected mileage and total fuel needed for journey</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                        <div style="font-size: 2rem;">🔧</div>
+                        <div>
+                            <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">Component Stress</div>
+                            <div style="color: var(--text-gray); font-size: 0.9rem;">Engine heat, brake wear, tire wear predictions</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                        <div style="font-size: 2rem;">💡</div>
+                        <div>
+                            <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">AI Recommendations</div>
+                            <div style="color: var(--text-gray); font-size: 0.9rem;">Tips to optimize performance and efficiency</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Popular Simulations -->
+            <div class="glass-card">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">🔥 Popular Simulations</h3>
+                <div style="display: grid; gap: 1rem;">
+                    <div style="padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(0, 217, 255, 0.1)'" onmouseout="this.style.background='rgba(0, 0, 0, 0.2)'">
+                        <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">Long Tour Simulation</div>
+                        <div style="color: var(--text-gray); font-size: 0.85rem;">Highway • 300km • Moderate • Passenger</div>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(0, 217, 255, 0.1)'" onmouseout="this.style.background='rgba(0, 0, 0, 0.2)'">
+                        <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">Daily Commute</div>
+                        <div style="color: var(--text-gray); font-size: 0.85rem;">City • 30km • Conservative • Solo</div>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(0, 217, 255, 0.1)'" onmouseout="this.style.background='rgba(0, 0, 0, 0.2)'">
+                        <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">Track Day</div>
+                        <div style="color: var(--text-gray); font-size: 0.85rem;">Track • 50km • Aggressive • Solo</div>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(0, 217, 255, 0.1)'" onmouseout="this.style.background='rgba(0, 0, 0, 0.2)'">
+                        <div style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">Mountain Ride</div>
+                        <div style="color: var(--text-gray); font-size: 0.85rem;">Highway • 150km • High Altitude • Luggage</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.slider {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--gradient-accent);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+}
+
+.slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--gradient-accent);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+}
+
+.radio-card {
+    cursor: pointer;
+}
+
+.radio-card input[type="radio"] {
+    display: none;
+}
+
+.radio-card-content {
+    padding: 1rem;
+    background: rgba(0, 217, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+    color: var(--text-light);
+}
+
+.radio-card:hover .radio-card-content {
+    background: rgba(0, 217, 255, 0.1);
+    border-color: rgba(0, 217, 255, 0.5);
+}
+
+.radio-card input[type="radio"]:checked + .radio-card-content {
+    background: rgba(0, 217, 255, 0.15);
+    border-color: var(--accent-cyan);
+    box-shadow: var(--shadow-glow);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    color: var(--text-light);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+function updateSliderValue(slider, displayId) {
+    const value = slider.value;
+    document.getElementById(displayId).textContent = value + (displayId.includes('Weight') ? ' kg' : ' km');
+    calculateTotalWeight();
+}
+
+function loadBikeSpecs(bikeId) {
+    const select = document.getElementById('bikeSelect');
+    const option = select.options[select.selectedIndex];
+    
+    if (option.dataset.power) {
+        document.getElementById('bikeStatsDisplay').style.display = 'block';
+        document.getElementById('bikePower').textContent = option.dataset.power + ' HP';
+        document.getElementById('bikeTorque').textContent = option.dataset.torque + ' Nm';
+        document.getElementById('bikeWeight').textContent = option.dataset.weight + ' kg';
+        document.getElementById('bikeCC').textContent = option.dataset.cc + ' cc';
+        calculateTotalWeight();
+    } else {
+        document.getElementById('bikeStatsDisplay').style.display = 'none';
+    }
+}
+
+function togglePassenger() {
+    const checkbox = document.getElementById('hasPassenger');
+    const passengerGroup = document.getElementById('passengerWeightGroup');
+    passengerGroup.style.display = checkbox.checked ? 'block' : 'none';
+    calculateTotalWeight();
+}
+
+function calculateTotalWeight() {
+    const select = document.getElementById('bikeSelect');
+    const option = select.options[select.selectedIndex];
+    const bikeWeight = parseFloat(option.dataset.weight) || 0;
+    
+    const riderWeight = parseFloat(document.getElementById('riderWeight').value);
+    const passengerWeight = document.getElementById('hasPassenger').checked ? 
+                            parseFloat(document.getElementById('passengerWeight').value) : 0;
+    const luggageWeight = parseFloat(document.getElementById('luggageWeight').value);
+    
+    const total = bikeWeight + riderWeight + passengerWeight + luggageWeight;
+    
+    document.getElementById('totalWeight').textContent = total.toFixed(0) + ' kg';
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default values for sliders
+    updateSliderValue(document.getElementById('riderWeight'), 'riderWeightValue');
+    updateSliderValue(document.getElementById('passengerWeight'), 'passengerWeightValue');
+    updateSliderValue(document.getElementById('luggageWeight'), 'luggageWeightValue');
+    updateSliderValue(document.getElementById('distance'), 'distanceValue');
+});
+</script>
+
+{% endblock %}

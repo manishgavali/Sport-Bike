@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Service History{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 class="fade-in">Service <span class="gradient-text">History</span></h1>
+            <p style="color: var(--text-gray); margin-top: 0.5rem;">
+                {{ user_bike.bike.brand }} {{ user_bike.bike.model }} • {{ user_bike.registration_number }}
+            </p>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('addRecordModal').style.display='block'">
+            + Add Record
+        </button>
+    </div>
+    
+    {% if records %}
+        <div style="display: grid; gap: 1.5rem;">
+            {% for record in records %}
+            <div class="glass-card">
+                <div style="display: flex; justify-content: between; align-items: start; gap: 2rem;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span style="background: var(--gradient-accent); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem;">
+                                {{ record.maintenance_type }}
+                            </span>
+                            <span style="color: var(--text-gray);">{{ record.service_date.strftime('%d %B, %Y') }}</span>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <p style="color: var(--text-gray); font-size: 0.85rem;">Odometer</p>
+                                <p style="color: var(--text-light); font-weight: 600;">{{ record.odometer_reading }} km</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-gray); font-size: 0.85rem;">Cost</p>
+                                <p style="color: var(--accent-orange); font-weight: 600;">₹{{ '{:,.0f}'.format(record.cost) if record.cost else 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-gray); font-size: 0.85rem;">Service Center</p>
+                                <p style="color: var(--text-light); font-weight: 600;">{{ record.service_center or 'N/A' }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if record.description %}
+                        <p style="color: var(--text-gray); margin-bottom: 0.5rem;"><strong>Description:</strong> {{ record.description }}</p>
+                        {% endif %}
+                        
+                        {% if record.parts_replaced %}
+                        <p style="color: var(--text-gray);"><strong>Parts Replaced:</strong> {{ record.parts_replaced }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass-card" style="text-align: center; padding: 4rem;">
+            <div style="font-size: 5rem; margin-bottom: 1rem;">📝</div>
+            <h2 style="color: var(--text-gray); margin-bottom: 1rem;">No service records yet</h2>
+            <p style="color: var(--text-gray); margin-bottom: 2rem;">Start tracking your bike's maintenance history</p>
+            <button class="btn btn-primary" onclick="document.getElementById('addRecordModal').style.display='block'">
+                Add First Record
+            </button>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Record Modal -->
+<div id="addRecordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999; overflow-y: auto;">
+    <div style="max-width: 600px; margin: 4rem auto; padding: 2rem;">
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--accent-cyan);">Add Maintenance Record</h2>
+                <button onclick="document.getElementById('addRecordModal').style.display='none'" style="background: none; border: none; color: var(--text-light); font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            
+            <form method="POST" action="{{ url_for('maintenance.add_record', bike_id=user_bike.id) }}">
+                <div class="form-group">
+                    <label class="form-label">Maintenance Type</label>
+                    <select name="maintenance_type" class="form-select" required>
+                        <option value="Regular Service">Regular Service</option>
+                        <option value="Repair">Repair</option>
+                        <option value="Parts Replacement">Parts Replacement</option>
+                        <option value="Inspection">Inspection</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Service Date</label>
+                    <input type="date" name="service_date" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Odometer Reading (km)</label>
+                    <input type="number" name="odometer_reading" class="form-input" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Parts Replaced</label>
+                    <input type="text" name="parts_replaced" class="form-input" placeholder="e.g., Engine oil, Oil filter">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cost (₹)</label>
+                    <input type="number" name="cost" class="form-input" step="0.01" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Service Center</label>
+                    <input type="text" name="service_center" class="form-input">
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Record</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,460 @@
+{% extends 'base.html' %}
+
+{% block title %}Write a Review - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem; text-align: center;">
+        Write Your <span class="gradient-text">Review</span> ✍️
+    </h1>
+    <p style="color: var(--text-gray); text-align: center; margin-bottom: 3rem;">
+        Share your riding experience and help others make informed decisions
+    </p>
+    
+    <div class="glass-card">
+        <form method="POST" action="{{ url_for('community.post_review') }}" enctype="multipart/form-data">
+            <!-- Bike Selection -->
+            <div class="form-group">
+                <label class="form-label">Select Your Bike *</label>
+                <select name="bike_id" class="form-select" required onchange="loadBikeInfo(this.value)">
+                    <option value="">Choose a bike to review...</option>
+                    {% if user_bikes %}
+                        <optgroup label="Your Bikes">
+                            {% for user_bike in user_bikes %}
+                            <option value="{{ user_bike.bike.id }}" data-ownership="true">
+                                {{ user_bike.bike.brand }} {{ user_bike.bike.model }} ({{ user_bike.bike.year }}) - Your Bike
+                            </option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endif %}
+                    <optgroup label="All Bikes">
+                        {% for bike in all_bikes %}
+                        <option value="{{ bike.id }}">
+                            {{ bike.brand }} {{ bike.model }} ({{ bike.year }})
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+                <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                    💡 Reviewing your own bike? It will be marked as "Verified Owner"
+                </p>
+            </div>
+            
+            <!-- Review Title -->
+            <div class="form-group">
+                <label class="form-label">Review Title *</label>
+                <input type="text" name="title" class="form-input" 
+                       placeholder="e.g., Perfect Daily Rider for City Commute" 
+                       maxlength="100" required>
+            </div>
+            
+            <!-- Overall Rating -->
+            <div class="form-group">
+                <label class="form-label">Overall Rating * <span id="ratingError" style="color: var(--accent-orange); font-size: 0.9rem; display: none;">Please select a rating</span></label>
+                <div class="rating-input" id="overallRating">
+                    <input type="radio" name="rating" value="5" id="star5">
+                    <label for="star5" class="star">★</label>
+                    <input type="radio" name="rating" value="4" id="star4">
+                    <label for="star4" class="star">★</label>
+                    <input type="radio" name="rating" value="3" id="star3">
+                    <label for="star3" class="star">★</label>
+                    <input type="radio" name="rating" value="2" id="star2">
+                    <label for="star2" class="star">★</label>
+                    <input type="radio" name="rating" value="1" id="star1">
+                    <label for="star1" class="star">★</label>
+                </div>
+            </div>
+            
+            <!-- Detailed Ratings -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <!-- Performance Rating -->
+                <div class="form-group">
+                    <label class="form-label">Performance ⚡</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="range" name="performance_rating" min="1" max="5" value="3" 
+                               class="slider" oninput="updateRatingValue(this, 'perfValue')">
+                        <span id="perfValue" style="color: var(--accent-cyan); font-weight: 600; min-width: 30px;">3</span>
+                    </div>
+                </div>
+                
+                <!-- Comfort Rating -->
+                <div class="form-group">
+                    <label class="form-label">Comfort 🪑</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="range" name="comfort_rating" min="1" max="5" value="3" 
+                               class="slider" oninput="updateRatingValue(this, 'comfortValue')">
+                        <span id="comfortValue" style="color: var(--accent-cyan); font-weight: 600; min-width: 30px;">3</span>
+                    </div>
+                </div>
+                
+                <!-- Mileage Rating -->
+                <div class="form-group">
+                    <label class="form-label">Mileage ⛽</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="range" name="mileage_rating" min="1" max="5" value="3" 
+                               class="slider" oninput="updateRatingValue(this, 'mileageValue')">
+                        <span id="mileageValue" style="color: var(--accent-cyan); font-weight: 600; min-width: 30px;">3</span>
+                    </div>
+                </div>
+                
+                <!-- Looks Rating -->
+                <div class="form-group">
+                    <label class="form-label">Looks & Design 🎨</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="range" name="looks_rating" min="1" max="5" value="3" 
+                               class="slider" oninput="updateRatingValue(this, 'looksValue')">
+                        <span id="looksValue" style="color: var(--accent-cyan); font-weight: 600; min-width: 30px;">3</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ownership Details -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Ownership Duration</label>
+                    <input type="text" name="ownership_duration" class="form-input" 
+                           placeholder="e.g., 2 years 3 months">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">KM Driven</label>
+                    <input type="number" name="km_driven" class="form-input" 
+                           placeholder="e.g., 15000" min="0">
+                </div>
+            </div>
+            
+            <!-- Review Content -->
+            <div class="form-group">
+                <label class="form-label">Your Review *</label>
+                <textarea name="content" class="form-textarea" rows="8" 
+                          placeholder="Share your detailed experience with this bike..." 
+                          required minlength="100"></textarea>
+                <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                    Minimum 100 characters. Be detailed and honest!
+                </p>
+            </div>
+            
+            <!-- Pros -->
+            <div class="form-group">
+                <label class="form-label">Pros (What You Liked) 👍</label>
+                <textarea name="pros" class="form-textarea" rows="4" 
+                          placeholder="• Great handling&#10;• Excellent build quality&#10;• Comfortable for long rides"></textarea>
+            </div>
+            
+            <!-- Cons -->
+            <div class="form-group">
+                <label class="form-label">Cons (What Could Be Better) 👎</label>
+                <textarea name="cons" class="form-textarea" rows="4" 
+                          placeholder="• Limited storage space&#10;• Firm suspension&#10;• High maintenance cost"></textarea>
+            </div>
+            
+            <!-- Riding Conditions -->
+            <div class="form-group">
+                <label class="form-label">Primary Riding Conditions</label>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="riding_conditions" value="city">
+                        <span>City Commute</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="riding_conditions" value="highway">
+                        <span>Highway Cruising</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="riding_conditions" value="track">
+                        <span>Track Days</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="riding_conditions" value="touring">
+                        <span>Long Tours</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="riding_conditions" value="mountains">
+                        <span>Mountain Roads</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="riding_conditions" value="weekend">
+                        <span>Weekend Rides</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Would Recommend -->
+            <div class="form-group">
+                <label class="form-label">Would you recommend this bike? * <span id="recommendError" style="color: var(--accent-orange); font-size: 0.9rem; display: none;">Please select an option</span></label>
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                    <label class="radio-label">
+                        <input type="radio" name="would_recommend" value="yes">
+                        <span>👍 Yes, definitely!</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="would_recommend" value="maybe">
+                        <span>🤔 Maybe, with conditions</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="would_recommend" value="no">
+                        <span>👎 No, not really</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Photos Upload -->
+            <div class="form-group">
+                <label class="form-label">Add Photos (Optional)</label>
+                <input type="file" name="photos" class="form-input" multiple accept="image/*">
+                <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                    📸 Upload up to 5 photos (max 5MB each)
+                </p>
+            </div>
+            
+            <!-- Terms -->
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="agree_terms" id="agreeTerms">
+                    <span style="color: var(--text-gray);">
+                        I agree that this review is based on my own experience and is truthful. 
+                        I understand that false reviews may result in account suspension. *
+                    </span>
+                </label>
+                <span id="termsError" style="color: var(--accent-orange); font-size: 0.9rem; display: none; margin-top: 0.5rem;">You must agree to the terms</span>
+            </div>
+            
+            <!-- Submit Buttons -->
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                <a href="{{ url_for('community.index') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" id="submitReviewBtn">
+                    Submit Review for Approval
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Review Guidelines -->
+    <div class="glass-card" style="margin-top: 2rem; background: rgba(0, 217, 255, 0.1); border-left: 4px solid var(--accent-cyan);">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">📝 Review Guidelines</h3>
+        <ul style="color: var(--text-gray); line-height: 1.8;">
+            <li>Be honest and objective about your experience</li>
+            <li>Include specific details about performance, comfort, and reliability</li>
+            <li>Mention the type of riding you do (city, highway, touring, etc.)</li>
+            <li>Discuss both positives and negatives fairly</li>
+            <li>Keep your review respectful and constructive</li>
+            <li>All reviews are moderated before publishing</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+/* Star Rating Input */
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.ratposition: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-eventsut input[type="radio"] {
+    display: none;
+}
+
+.rating-input .star {
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rating-input .star:hover,
+.rating-input .star:hover ~ .star,
+.rating-input input[type="radio"]:checked ~ .star {
+    color: var(--accent-orange);
+    transform: scale(1.1);
+}
+
+/* Slider Styling */
+.slider {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gradient-accent);
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gradient-accent);
+    cursor: pointer;
+    border: none;
+}
+
+/* Checkbox and Radio Styling */
+.checkbox-label, .radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+    padding: 0.8rem;
+    background: rgba(0, 217, 255, 0.05);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.checkbox-label:hover, .radio-label:hover {
+    background: rgba(0, 217, 255, 0.1);
+}
+
+.checkbox-label input, .radio-label input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+function updateRatingValue(slider, displayId) {
+    document.getElementById(displayId).textContent = slider.value;
+}
+
+function loadBikeInfo(bikeId) {
+    if (!bikeId) return;
+    
+    // You can fetch bike info via AJAX if needed
+    // For now, just show a message
+    console.log('Selected bike ID:', bikeId);
+}
+
+// Character counter for textarea
+const contentTextarea = document.querySelector('textarea[name="content"]');
+if (contentTextarea) {
+    contentTextarea.addEventListener('input', function() {
+        const charCount = this.value.length;
+        const minChars = 100;
+        
+        if (charCount < minChars) {
+            this.style.borderColor = 'var(--accent-orange)';
+        } else {
+            this.style.borderColor = 'var(--accent-cyan)';
+   Clear error messages function
+function clearErrors() {
+    document.getElementById('ratingError').style.display = 'none';
+    document.getElementById('recommendError').style.display = 'none';
+    document.getElementById('termsError').style.display = 'none';
+}
+
+// Form submission handler
+const reviewForm = document.querySelector('form');
+if (reviewForm) {
+    reviewForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default submission
+        clearErrors();
+        
+        const submitBtn = document.getElementById('submitReviewBtn');
+        let isValid = true;
+        
+        // Validate required fields
+        const bikeId = document.querySelector('select[name="bike_id"]').value;
+        const title = document.querySelector('input[name="title"]').value.trim();
+        const rating = document.querySelector('input[name="rating"]:checked');
+        const content = document.querySelector('textarea[name="content"]').value.trim();
+        const agreeTerms = document.querySelector('input[name="agree_terms"]').checked;
+        const wouldRecommend = document.querySelector('input[name="would_recommend"]:checked');
+        
+        if (!bikeId) {
+            alert('Please select a bike to review.');
+            document.querySelector('select[name="bike_id"]').focus();
+            isValid = false;
+            return false;
+        }
+        
+        if (!title) {
+            alert('Please enter a review title.');
+            document.querySelector('input[name="title"]').focus();
+            isValid = false;
+            return false;
+        }
+        
+        if (!rating) {
+            document.getElementById('ratingError').style.display = 'inline';
+            alert('Please provide an overall rating by clicking the stars.');
+            document.getElementById('overallRating').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            isValid = false;
+            return false;
+        }
+        
+        if (content.length < 100) {
+            alert('Review content must be at least 100 characters long. Current: ' + content.length + ' characters.');
+            document.querySelector('textarea[name="content"]').focus();
+            isValid = false;
+            return false;
+        }
+        
+        if (!wouldRecommend) {
+            document.getElementById('recommendError').style.display = 'inline';
+            alert('Please indicate if you would recommend this bike.');
+            isValid = false;
+            return false;
+        }
+        
+        if (!agreeTerms) {
+            document.getElementById('termsError').style.display = 'block';
+            alert('Please agree to the terms before submitting.');
+            document.getElementById('agreeTerms').focus();
+            isValid = false;
+            return false;
+        }
+        
+        if (isValid) {
+            // Disable submit button to prevent double submission
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.style.opacity = '0.6';
+            
+            // Submit the form
+            this.submit();
+        }
+        
+        return isValid;
+    });
+    
+    // Add visual feedback when rating is selected
+    document.querySelectorAll('input[name="rating"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('ratingError').style.display = 'none';
+        });
+    });
+    
+    // Add visual feedback when recommendation is selected
+    document.querySelectorAll('input[name="would_recommend"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('recommendError').style.display = 'none';
+        });
+    });
+    
+    // Add visual feedback when terms are agreed
+    document.getElementById('agreeTerms').addEventListener('change', function() {
+        document.getElementById('termsError').style.display = 'none'submit button to prevent double submission
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        
+        return true;
+    });
+}
+</script>
+{% endblock %}

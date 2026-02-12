@@ -1,0 +1,576 @@
+/* ============================================
+   MODERN HOME PAGE - LIGHT THEME
+   Clean, Minimalist Design
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    background: linear-gradient(135deg, #e0f7fa 0%, #f0f4f8 50%, #e1f5fe 100%);
+    color: #2c3e50;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ============ FLOATING DECORATIVE CIRCLES ============ */
+.floating-circle {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    z-index: 0;
+    animation: float 20s ease-in-out infinite;
+}
+
+.circle-1 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, #4dd0e1, #26c6da);
+    top: -150px;
+    left: -150px;
+}
+
+.circle-2 {
+    width: 350px;
+    height: 350px;
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    top: 50%;
+    right: -100px;
+    animation-delay: 5s;
+}
+
+.circle-3 {
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, #81d4fa, #4fc3f7);
+    bottom: -100px;
+    left: 30%;
+    animation-delay: 10s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    50% {
+        transform: translateY(-30px) scale(1.05);
+    }
+}
+
+/* ============ MODERN NAVIGATION BAR ============ */
+.modern-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem 0;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #2c3e50;
+}
+
+.logo-icon {
+    font-size: 2rem;
+}
+
+.logo-text {
+    letter-spacing: 2px;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 3rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #546e7a;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #26c6da;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #26c6da;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-nav {
+    padding: 0.75rem 1.75rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-login {
+    color: #546e7a;
+    background: transparent;
+    border: 2px solid #e0e0e0;
+}
+
+.btn-login:hover {
+    color: #26c6da;
+    border-color: #26c6da;
+}
+
+.btn-primary-nav {
+    background: linear-gradient(135deg, #26c6da, #00acc1);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(38, 198, 218, 0.3);
+}
+
+.btn-primary-nav:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(38, 198, 218, 0.4);
+}
+
+/* ============ HERO SECTION ============ */
+.hero-modern {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 3rem 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 4rem;
+    align-items: center;
+    width: 100%;
+}
+
+/* ============ LEFT CONTENT ============ */
+.hero-left {
+    z-index: 2;
+}
+
+.hero-heading {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+}
+
+.hero-heading-accent {
+    display: block;
+    font-size: 5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #2c3e50 0%, #546e7a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: #78909c;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+}
+
+.btn-get-started {
+    padding: 1rem 3rem;
+    background: linear-gradient(135deg, #26c6da, #00acc1);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(38, 198, 218, 0.35);
+    transition: all 0.3s ease;
+}
+
+.btn-get-started:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(38, 198, 218, 0.5);
+}
+
+.hero-stats {
+    margin-top: 4rem;
+    display: flex;
+    gap: 4rem;
+}
+
+.stat-item h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.stat-item p {
+    font-size: 0.9rem;
+    color: #78909c;
+}
+
+/* ============ RIGHT CONTENT - BIKE SHOWCASE ============ */
+.hero-right {
+    position: relative;
+    z-index: 2;
+}
+
+.bike-showcase {
+    position: relative;
+    animation: floatBike 6s ease-in-out infinite;
+}
+
+@keyframes floatBike {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.bike-image {
+    width: 100%;
+    height: auto;
+    max-width: 700px;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
+    transition: transform 0.5s ease;
+}
+
+.bike-image:hover {
+    transform: scale(1.05);
+}
+
+/* Info Cards */
+.info-card {
+    position: absolute;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.info-card-1 {
+    top: 10%;
+    right: -30px;
+}
+
+.info-card-2 {
+    bottom: 30%;
+    left: -50px;
+}
+
+.info-card-3 {
+    bottom: 10%;
+    right: 10%;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: #78909c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #26c6da;
+}
+
+/* ============ NAVIGATION ARROWS ============ */
+.nav-arrow {
+    position: absolute;
+    background: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #2c3e50;
+}
+
+.nav-arrow:hover {
+    background: #26c6da;
+    color: white;
+    transform: scale(1.1);
+}
+
+.nav-arrow-left {
+    bottom: 50%;
+    left: 2rem;
+}
+
+.nav-arrow-right {
+    bottom: 50%;
+    right: 2rem;
+}
+
+/* ============ SLIDE INDICATORS ============ */
+.slide-indicators {
+    position: absolute;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.75rem;
+    z-index: 10;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(44, 62, 80, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    background: #26c6da;
+    width: 35px;
+    border-radius: 10px;
+}
+
+.indicator:hover {
+    background: #26c6da;
+}
+
+/* ============ SIDE NAVIGATION ============ */
+.side-nav {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    z-index: 100;
+}
+
+.side-link {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    text-decoration: none;
+    color: #78909c;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    transition: color 0.3s ease;
+}
+
+.side-link:hover {
+    color: #26c6da;
+}
+
+/* ============ FEATURES SECTION ============ */
+.features-section {
+    padding: 5rem 3rem;
+    background: white;
+    position: relative;
+    z-index: 2;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 3rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: linear-gradient(135deg, #f5f5f5, #ffffff);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(38, 198, 218, 0.2);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+}
+
+.feature-card p {
+    color: #78909c;
+    line-height: 1.6;
+}
+
+/* ============ RESPONSIVE DESIGN ============ */
+@media (max-width: 1200px) {
+    .hero-container {
+        gap: 2rem;
+    }
+    
+    .hero-heading {
+        font-size: 3rem;
+    }
+    
+    .hero-heading-accent {
+        font-size: 4rem;
+    }
+}
+
+@media (max-width: 968px) {
+    .nav-menu {
+        gap: 1.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .hero-stats {
+        justify-content: center;
+    }
+    
+    .bike-showcase {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .info-card-1,
+    .info-card-2,
+    .info-card-3 {
+        position: static;
+        display: inline-block;
+        margin: 1rem 0.5rem;
+    }
+    
+    .side-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+    }
+    
+    .hero-heading {
+        font-size: 2.5rem;
+    }
+    
+    .hero-heading-accent {
+        font-size: 3rem;
+    }
+    
+    .hero-modern {
+        padding: 6rem 1.5rem 2rem;
+    }
+    
+    .nav-container {
+        padding: 0 1.5rem;
+    }
+    
+    .nav-arrow {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .nav-arrow-left {
+        left: 1rem;
+    }
+    
+    .nav-arrow-right {
+        right: 1rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}

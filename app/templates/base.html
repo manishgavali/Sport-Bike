@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Sport Bike Ecosystem{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/comparison.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }} slide-in-right">
+                            <span class="flash-icon">
+                                {% if category == 'success' %}✓{% elif category == 'error' %}✕{% elif category == 'warning' %}⚠{% else %}ℹ{% endif %}
+                            </span>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <div class="hero-content fade-in-left">
+                <h1 class="hero-title">
+                    Smart Sport Bike <span class="gradient-text">Ecosystem</span>
+                </h1>
+                <p class="hero-subtitle">
+                    AI-Powered platform for performance tracking, safety analysis, and intelligent maintenance prediction
+                </p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get Started</a>
+                    <a href="{{ url_for('comparison.index') }}" class="btn btn-secondary">Compare Bikes</a>
+                </div>
+            </div>
+            <div class="hero-image fade-in-right">
+                <img src="{{ url_for('static', filename='images/logo/hero-bike.png') }}" alt="Sport Bike" onerror="this.style.display='none'">
+            </div>
+        </section>
+
+        <!-- STATS SECTION -->
+        <section class="stats-container">
+            <div class="stat-card stagger-item fade-in-up">
+                <div class="stat-icon">🏍️</div>
+                <div class="stat-value">500+</div>
+                <div class="stat-label">Sport Bikes Tracked</div>
+            </div>
+            <div class="stat-card stagger-item fade-in-up">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-value">95%</div>
+                <div class="stat-label">Prediction Accuracy</div>
+            </div>
+            <div class="stat-card stagger-item fade-in-up">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">10K+</div>
+                <div class="stat-label">Active Riders</div>
+            </div>
+            <div class="stat-card stagger-item fade-in-up">
+                <div class="stat-icon">🛠️</div>
+                <div class="stat-value">2M+</div>
+                <div class="stat-label">Maintenance Alerts</div>
+            </div>
+        </section>
+        {% endblock %}
+    </main>
+    
+    {% include 'footer.html' %}
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

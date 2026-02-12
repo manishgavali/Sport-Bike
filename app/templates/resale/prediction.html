@@ -1,0 +1,633 @@
+{% extends 'base.html' %}
+
+{% block title %}Resale Value Prediction - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem; text-align: center;">
+        Resale Value <span class="gradient-text">Predictor</span> 💰
+    </h1>
+    <p style="color: var(--text-gray); text-align: center; margin-bottom: 3rem;">
+        AI-powered estimation of your bike's current market value
+    </p>
+    
+    <!-- Info Banner -->
+    <div class="glass-card" style="margin-bottom: 2rem; background: rgba(0, 217, 255, 0.1); border-left: 4px solid var(--accent-cyan);">
+        <div style="display: flex; align-items: start; gap: 1rem;">
+            <div style="font-size: 2rem;">💡</div>
+            <div>
+                <h3 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">How It Works</h3>
+                <p style="color: var(--text-light); line-height: 1.6; margin: 0;">
+                    Our AI analyzes market trends, bike condition, age, mileage, and location data to provide accurate resale value predictions. 
+                    This helps you make informed decisions when buying or selling.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        
+        <!-- Input Form -->
+        <div class="glass-card">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Enter Bike Details</h2>
+            
+            <form id="resaleForm" onsubmit="calculateResaleValue(event)">
+                <!-- Bike Selection -->
+                <div class="form-group">
+                    <label class="form-label">Select Your Bike *</label>
+                    <select name="bike_id" id="bikeSelect" class="form-select" size="10" required onchange="loadBikeDefaults(this.value)" style="height: auto; max-height: 300px; overflow-y: auto;">
+                        {% if user_bikes %}
+                            <optgroup label="Your Bikes" style="background: rgba(0, 217, 255, 0.1); color: var(--accent-cyan); font-weight: 600; padding: 0.5rem;">
+                                {% for user_bike in user_bikes %}
+                                <option value="{{ user_bike.bike.id }}" 
+                                        data-userbike="{{ user_bike.id }}"
+                                        data-year="{{ user_bike.bike.year }}"
+                                        data-km="{{ user_bike.current_km }}"
+                                        data-condition="{{ user_bike.bike_condition }}"
+                                        data-price="{{ user_bike.purchase_price or user_bike.bike.price }}">
+                                    {{ user_bike.bike.brand }} {{ user_bike.bike.model }} ({{ user_bike.bike.year }})
+                                </option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endif %}
+                        <optgroup label="All Bikes" style="background: rgba(255, 107, 0, 0.1); color: var(--accent-orange); font-weight: 600; padding: 0.5rem;">
+                            {% for bike in all_bikes %}
+                            <option value="{{ bike.id }}" 
+                                    data-year="{{ bike.year }}"
+                                    data-price="{{ bike.price }}">
+                                {{ bike.brand }} {{ bike.model }} ({{ bike.year }})
+                            </option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <!-- Purchase Year -->
+                <div class="form-group">
+                    <label class="form-label">Purchase Year *</label>
+                    <input type="number" name="purchase_year" id="purchaseYear" class="form-input" 
+                           min="2000" max="2026" required>
+                </div>
+                
+                <!-- Original Price -->
+                <div class="form-group">
+                    <label class="form-label">Original Purchase Price (₹) *</label>
+                    <input type="number" name="original_price" id="originalPrice" class="form-input" 
+                           min="50000" step="1000" required>
+                </div>
+                
+                <!-- Current Odometer Reading -->
+                <div class="form-group">
+                    <label class="form-label">Current Odometer Reading (km) *</label>
+                    <input type="number" name="odometer" id="odometer" class="form-input" 
+                           min="0" step="100" required>
+                    <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                        📊 Average: {{ average_km_per_year if average_km_per_year is defined else '8,000' }} km/year
+                    </p>
+                </div>
+                
+                <!-- Bike Condition -->
+                <div class="form-group">
+                    <label class="form-label">Overall Condition *</label>
+                    <select name="condition" id="condition" class="form-select" required>
+                        <option value="">Select condition...</option>
+                        <option value="excellent">Excellent - Like new, no damage</option>
+                        <option value="good">Good - Minor wear, well maintained</option>
+                        <option value="fair">Fair - Visible wear, needs minor repairs</option>
+                        <option value="poor">Poor - Significant wear, needs major work</option>
+                    </select>
+                </div>
+                
+                <!-- Service History -->
+                <div class="form-group">
+                    <label class="form-label">Service History *</label>
+                    <select name="service_history" class="form-select" required>
+                        <option value="complete">Complete - All records available</option>
+                        <option value="partial">Partial - Some records available</option>
+                        <option value="none">None - No service records</option>
+                    </select>
+                </div>
+                
+                <!-- Number of Owners -->
+                <div class="form-group">
+                    <label class="form-label">Number of Previous Owners *</label>
+                    <select name="owners" class="form-select" required>
+                        <option value="0">First Owner (Brand New)</option>
+                        <option value="1">Second Owner</option>
+                        <option value="2">Third Owner</option>
+                        <option value="3">Fourth Owner or More</option>
+                    </select>
+                </div>
+                
+                <!-- Accident History -->
+                <div class="form-group">
+                    <label class="form-label">Accident History *</label>
+                    <select name="accident_history" class="form-select" required>
+                        <option value="none">No accidents</option>
+                        <option value="minor">Minor accidents (cosmetic damage)</option>
+                        <option value="major">Major accidents (structural damage)</option>
+                    </select>
+                </div>
+                
+                <!-- Modifications -->
+                <div class="form-group">
+                    <label class="form-label">Modifications/Upgrades</label>
+                    <textarea name="modifications" class="form-textarea" rows="3" 
+                              placeholder="e.g., Aftermarket exhaust, upgraded suspension, custom paint..."></textarea>
+                </div>
+                
+                <!-- Location -->
+                <div class="form-group">
+                    <label class="form-label">City/Location *</label>
+                    <select name="location" class="form-select" size="10" required style="height: auto; max-height: 300px; overflow-y: auto;">
+                        <option value="akola">Akola</option>
+                        <option value="ambernath">Ambernath</option>
+                        <option value="amravati">Amravati</option>
+                        <option value="aurangabad">Aurangabad (Chhatrapati Sambhajinagar)</option>
+                        <option value="barshi">Barshi</option>
+                        <option value="beed">Beed</option>
+                        <option value="bhiwandi">Bhiwandi</option>
+                        <option value="bhusawal">Bhusawal</option>
+                        <option value="dhule">Dhule</option>
+                        <option value="gondia">Gondia</option>
+                        <option value="ichalkaranji">Ichalkaranji</option>
+                        <option value="jalgaon">Jalgaon</option>
+                        <option value="jalna">Jalna</option>
+                        <option value="kalyan-dombivli">Kalyan-Dombivli</option>
+                        <option value="kolhapur">Kolhapur</option>
+                        <option value="malegaon">Malegaon</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="nagpur">Nagpur</option>
+                        <option value="nanded">Nanded</option>
+                        <option value="nashik">Nashik</option>
+                        <option value="osmanabad">Osmanabad</option>
+                        <option value="parbhani">Parbhani</option>
+                        <option value="pimpri-chinchwad">Pimpri-Chinchwad</option>
+                        <option value="pune">Pune</option>
+                        <option value="sangli">Sangli</option>
+                        <option value="satara">Satara</option>
+                        <option value="solapur">Solapur</option>
+                        <option value="thane">Thane</option>
+                        <option value="vasai-virar">Vasai-Virar</option>
+                        <option value="yavatmal">Yavatmal</option>
+                    </select>
+                </div>
+                        <option value="ahmedabad">Ahmedabad</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <!-- Selling Timeline -->
+                <div class="form-group">
+                    <label class="form-label">When are you planning to sell?</label>
+                    <select name="selling_timeline" class="form-select">
+                        <option value="immediate">Immediately</option>
+                        <option value="1month">Within 1 month</option>
+                        <option value="3months">Within 3 months</option>
+                        <option value="6months">Within 6 months</option>
+                        <option value="just_checking">Just checking value</option>
+                    </select>
+                </div>
+                
+                <!-- Calculate Button -->
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Calculate Resale Value
+                </button>
+            </form>
+        </div>
+        
+        <!-- Results Display -->
+        <div>
+            <div class="glass-card" id="resultsContainer" style="display: none;">
+                <!-- Seller Details (Print Only) -->
+                <div class="print-only" style="border-bottom: 2px solid rgba(0, 217, 255, 0.3); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">👤 Seller Details</h3>
+                    {% if current_user.is_authenticated %}
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                            <div>
+                                <p style="color: var(--text-gray); margin-bottom: 0.3rem;">Full Name:</p>
+                                <p style="color: var(--text-light); font-weight: 600;">{{ current_user.rc_full_name or current_user.full_name or current_user.username }}</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-gray); margin-bottom: 0.3rem;">Mobile Number:</p>
+                                <p style="color: var(--text-light); font-weight: 600;">{{ current_user.phone or 'Not provided' }}</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-gray); margin-bottom: 0.3rem;">Email:</p>
+                                <p style="color: var(--text-light); font-weight: 600;">{{ current_user.email }}</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-gray); margin-bottom: 0.3rem;">ID Proof:</p>
+                                <p style="color: var(--text-light); font-weight: 600;">
+                                    {% if current_user.id_proof_type == 'aadhaar' %}Aadhaar - {{ current_user.id_proof_number }}
+                                    {% elif current_user.id_proof_type == 'pan' %}PAN - {{ current_user.id_proof_number }}
+                                    {% elif current_user.id_proof_type == 'voter_id' %}Voter ID - {{ current_user.id_proof_number }}
+                                    {% elif current_user.id_proof_type == 'driving_license' %}DL - {{ current_user.id_proof_number }}
+                                    {% else %}Not provided{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% if current_user.address %}
+                        <div style="margin-top: 1rem;">
+                            <p style="color: var(--text-gray); margin-bottom: 0.3rem;">Address:</p>
+                            <p style="color: var(--text-light); font-weight: 600; line-height: 1.4;">{{ current_user.address }}</p>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <p style="color: var(--text-gray);">Please login to display seller details</p>
+                    {% endif %}
+                </div>
+                
+                <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Estimated Resale Value</h2>
+                
+                <!-- Main Price Display -->
+                <div style="text-align: center; padding: 2rem; background: var(--gradient-accent); border-radius: 15px; margin-bottom: 2rem;">
+                    <p style="color: white; font-size: 1rem; margin-bottom: 0.5rem;">Estimated Market Value</p>
+                    <h1 id="estimatedPrice" style="color: white; font-size: 3rem; font-weight: 800; margin: 0;">₹0</h1>
+                    <p style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-top: 0.5rem;">
+                        Range: ₹<span id="priceMin">0</span> - ₹<span id="priceMax">0</span>
+                    </p>
+                </div>
+                
+                <!-- Depreciation Info -->
+                <div style="padding: 1.5rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <div>
+                            <p style="color: var(--text-gray); font-size: 0.9rem;">Original Price</p>
+                            <p id="origPrice" style="color: var(--text-light); font-size: 1.3rem; font-weight: 600;">₹0</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="color: var(--text-gray); font-size: 0.9rem;">Depreciation</p>
+                            <p id="depreciationAmount" style="color: var(--accent-orange); font-size: 1.3rem; font-weight: 600;">-₹0</p>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+                        <div id="depreciationBar" style="width: 0%; height: 100%; background: var(--accent-orange); transition: width 1s ease;"></div>
+                    </div>
+                    <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem; text-align: center;">
+                        <span id="depreciationPercent">0</span>% depreciation over <span id="ageYears">0</span> years
+                    </p>
+                </div>
+                
+                <!-- Value Factors -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">Value Impact Factors</h3>
+                    <div id="factorsContainer" style="display: grid; gap: 0.8rem;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+                
+                <!-- Market Insights -->
+                <div style="padding: 1rem; background: rgba(76, 175, 80, 0.1); border-radius: 10px; border-left: 4px solid #4caf50; margin-bottom: 1.5rem;">
+                    <h4 style="color: #4caf50; margin-bottom: 0.5rem;">💡 Market Insights</h4>
+                    <p id="marketInsight" style="color: var(--text-light); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                        Loading insights...
+                    </p>
+                </div>
+                
+                <!-- Recommendations -->
+                <div style="padding: 1rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px; border-left: 4px solid var(--accent-cyan);">
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">📈 Maximize Your Value</h4>
+                    <ul id="recommendations" style="color: var(--text-light); font-size: 0.9rem; line-height: 1.8; margin: 0.5rem 0 0 1.5rem;">
+                        <!-- Dynamically populated -->
+                    </ul>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="printReport()">
+                        🖨️ Print Report
+                    </button>
+                    <button class="btn btn-primary" onclick="shareResults()">
+                        📤 Share Results
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Placeholder when no results -->
+            <div class="glass-card" id="placeholderContainer">
+                <div style="text-align: center; padding: 4rem 2rem;">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">💰</div>
+                    <h3 style="color: var(--text-gray); margin-bottom: 1rem;">Enter Bike Details</h3>
+                    <p style="color: var(--text-gray);">
+                        Fill in the form to get an instant resale value prediction based on market data and AI analysis
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Market Trends -->
+    <div class="glass-card" style="margin-top: 3rem;">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📊 Market Trends & Statistics</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            <div style="text-align: center; padding: 1.5rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <div style="font-size: 2.5rem; color: var(--accent-cyan); font-weight: 700; margin-bottom: 0.5rem;">
+                    {{ avg_depreciation if avg_depreciation is defined else '15' }}%
+                </div>
+                <div style="color: var(--text-gray);">Average Annual Depreciation</div>
+            </div>
+            
+            <div style="text-align: center; padding: 1.5rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <div style="font-size: 2.5rem; color: var(--accent-orange); font-weight: 700; margin-bottom: 0.5rem;">
+                    {{ avg_selling_time if avg_selling_time is defined else '45' }} days
+                </div>
+                <div style="color: var(--text-gray);">Average Time to Sell</div>
+            </div>
+            
+            <div style="text-align: center; padding: 1.5rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <div style="font-size: 2.5rem; color: #4caf50; font-weight: 700; margin-bottom: 0.5rem;">
+                    ₹{{ best_resale_value if best_resale_value is defined else '85K' }}
+                </div>
+                <div style="color: var(--text-gray);">Best Resale Value Brand</div>
+            </div>
+            
+            <div style="text-align: center; padding: 1.5rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <div style="font-size: 2.5rem; color: var(--accent-cyan); font-weight: 700; margin-bottom: 0.5rem;">
+                    {{ market_demand if market_demand is defined else '8.5' }}/10
+                </div>
+                <div style="color: var(--text-gray);">Current Market Demand</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tips for Better Resale -->
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">💎 Tips for Better Resale Value</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <div style="font-size: 2rem; margin-bottom: 0.8rem;">🔧</div>
+                <h4 style="color: var(--text-light); margin-bottom: 0.5rem;">Regular Maintenance</h4>
+                <p style="color: var(--text-gray); font-size: 0.9rem; line-height: 1.6;">
+                    Keep all service records. A well-documented maintenance history can increase value by 10-15%.
+                </p>
+            </div>
+            
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <div style="font-size: 2rem; margin-bottom: 0.8rem;">✨</div>
+                <h4 style="color: var(--text-light); margin-bottom: 0.5rem;">Keep It Clean</h4>
+                <p style="color: var(--text-gray); font-size: 0.9rem; line-height: 1.6;">
+                    Regular cleaning and detailing makes your bike more appealing. First impressions matter!
+                </p>
+            </div>
+            
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <div style="font-size: 2rem; margin-bottom: 0.8rem;">📸</div>
+                <h4 style="color: var(--text-light); margin-bottom: 0.5rem;">Quality Photos</h4>
+                <p style="color: var(--text-gray); font-size: 0.9rem; line-height: 1.6;">
+                    Take high-quality photos from multiple angles. Good photography can speed up the sale.
+                </p>
+            </div>
+            
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <div style="font-size: 2rem; margin-bottom: 0.8rem;">⏰</div>
+                <h4 style="color: var(--text-light); margin-bottom: 0.5rem;">Timing Matters</h4>
+                <p style="color: var(--text-gray); font-size: 0.9rem; line-height: 1.6;">
+                    Sell during peak season (March-June) when demand is higher for better prices.
+                </p>
+            </div>
+            
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <div style="font-size: 2rem; margin-bottom: 0.8rem;">📄</div>
+                <h4 style="color: var(--text-light); margin-bottom: 0.5rem;">Complete Documentation</h4>
+                <p style="color: var(--text-gray); font-size: 0.9rem; line-height: 1.6;">
+                    Have RC, insurance, PUC, and NOC ready. Complete paperwork builds buyer confidence.
+                </p>
+            </div>
+            
+            <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.2); border-radius: 10px;">
+                <div style="font-size: 2rem; margin-bottom: 0.8rem;">🔍</div>
+                <h4 style="color: var(--text-light); margin-bottom: 0.5rem;">Fix Minor Issues</h4>
+                <p style="color: var(--text-gray); font-size: 0.9rem; line-height: 1.6;">
+                    Repair small dents, scratches, and replace worn parts. Small investments yield better returns.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadBikeDefaults(bikeId) {
+    const select = document.getElementById('bikeSelect');
+    const option = select.options[select.selectedIndex];
+    
+    if (option.dataset.year) {
+        document.getElementById('purchaseYear').value = option.dataset.year;
+    }
+    
+    if (option.dataset.price) {
+        document.getElementById('originalPrice').value = option.dataset.price;
+    }
+    
+    if (option.dataset.km) {
+        document.getElementById('odometer').value = option.dataset.km;
+    }
+    
+    if (option.dataset.condition) {
+        document.getElementById('condition').value = option.dataset.condition;
+    }
+}
+
+function calculateResaleValue(event) {
+    event.preventDefault();
+    
+    // Get form data
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
+    
+    // Calculate depreciation
+    const currentYear = 2026;
+    const age = currentYear - parseInt(data.purchase_year);
+    const originalPrice = parseFloat(data.original_price);
+    
+    // Depreciation calculation (simplified)
+    let depreciationRate = 0.15; // 15% per year base
+    
+    // Adjust for condition
+    const conditionFactors = {
+        'excellent': 0.85,
+        'good': 0.75,
+        'fair': 0.60,
+        'poor': 0.45
+    };
+    
+    // Adjust for mileage (assuming 8000 km/year is average)
+    const avgKmPerYear = 8000;
+    const actualKmPerYear = parseInt(data.odometer) / age;
+    const mileageFactor = actualKmPerYear > avgKmPerYear ? 0.95 : 1.05;
+    
+    // Adjust for owners
+    const ownersPenalty = parseInt(data.owners) * 0.05;
+    
+    // Adjust for accident history
+    const accidentFactors = {
+        'none': 1.0,
+        'minor': 0.90,
+        'major': 0.70
+    };
+    
+    // Adjust for service history
+    const serviceFactors = {
+        'complete': 1.05,
+        'partial': 1.0,
+        'none': 0.90
+    };
+    
+    // Calculate estimated value
+    let estimatedValue = originalPrice * conditionFactors[data.condition];
+    estimatedValue *= Math.pow((1 - depreciationRate), age);
+    estimatedValue *= mileageFactor;
+    estimatedValue *= (1 - ownersPenalty);
+    estimatedValue *= accidentFactors[data.accident_history];
+    estimatedValue *= serviceFactors[data.service_history];
+    
+    // Calculate range (±10%)
+    const minValue = estimatedValue * 0.90;
+    const maxValue = estimatedValue * 1.10;
+    
+    const depreciation = originalPrice - estimatedValue;
+    const depreciationPercent = ((depreciation / originalPrice) * 100).toFixed(1);
+    
+    // Display results
+    document.getElementById('placeholderContainer').style.display = 'none';
+    document.getElementById('resultsContainer').style.display = 'block';
+    
+    document.getElementById('estimatedPrice').textContent = '₹' + Math.round(estimatedValue).toLocaleString();
+    document.getElementById('priceMin').textContent = Math.round(minValue).toLocaleString();
+    document.getElementById('priceMax').textContent = Math.round(maxValue).toLocaleString();
+    document.getElementById('origPrice').textContent = '₹' + originalPrice.toLocaleString();
+    document.getElementById('depreciationAmount').textContent = '-₹' + Math.round(depreciation).toLocaleString();
+    document.getElementById('depreciationPercent').textContent = depreciationPercent;
+    document.getElementById('depreciationBar').style.width = depreciationPercent + '%';
+    document.getElementById('ageYears').textContent = age;
+    
+    // Generate factors
+    generateFactors(data, age, actualKmPerYear);
+    
+    // Generate insights
+    generateInsights(data, estimatedValue, originalPrice);
+    
+    // Generate recommendations
+    generateRecommendations(data);
+    
+    // Scroll to results
+    document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function generateFactors(data, age, kmPerYear) {
+    const factorsContainer = document.getElementById('factorsContainer');
+    const factors = [];
+    
+    // Age factor
+    if (age <= 2) {
+        factors.push({ icon: '✅', text: 'Recent model increases value', impact: 'positive' });
+    } else if (age > 5) {
+        factors.push({ icon: '⚠️', text: 'Older model decreases value', impact: 'negative' });
+    }
+    
+    // Mileage factor
+    if (kmPerYear < 8000) {
+        factors.push({ icon: '✅', text: 'Low mileage increases value', impact: 'positive' });
+    } else if (kmPerYear > 12000) {
+        factors.push({ icon: '⚠️', text: 'High mileage decreases value', impact: 'negative' });
+    }
+    
+    // Condition factor
+    if (data.condition === 'excellent') {
+        factors.push({ icon: '✅', text: 'Excellent condition boosts value', impact: 'positive' });
+    }
+    
+    // Service history
+    if (data.service_history === 'complete') {
+        factors.push({ icon: '✅', text: 'Complete service history adds value', impact: 'positive' });
+    }
+    
+    // Accident history
+    if (data.accident_history === 'none') {
+        factors.push({ icon: '✅', text: 'No accidents maintain value', impact: 'positive' });
+    } else {
+        factors.push({ icon: '⚠️', text: 'Accident history reduces value', impact: 'negative' });
+    }
+    
+    // Owners
+    if (data.owners == '0') {
+        factors.push({ icon: '✅', text: 'First owner premium', impact: 'positive' });
+    }
+    
+    factorsContainer.innerHTML = factors.map(factor => `
+        <div style="display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem; background: rgba(${factor.impact === 'positive' ? '76, 175, 80' : '255, 193, 7'}, 0.1); border-radius: 8px;">
+            <span style="font-size: 1.5rem;">${factor.icon}</span>
+            <span style="color: var(--text-light); font-size: 0.9rem;">${factor.text}</span>
+        </div>
+    `).join('');
+}
+
+function generateInsights(data, estimatedValue, originalPrice) {
+    const retentionRate = ((estimatedValue / originalPrice) * 100).toFixed(1);
+    let insight = '';
+    
+    if (retentionRate > 70) {
+        insight = `Great news! Your bike retains ${retentionRate}% of its original value, which is above market average. ${data.condition === 'excellent' ? 'The excellent condition is a major plus.' : ''} Consider selling during peak season (March-June) for best results.`;
+    } else if (retentionRate > 50) {
+        insight = `Your bike retains ${retentionRate}% of its original value, which is in line with market standards. With some minor improvements and proper marketing, you could potentially get closer to the higher end of the estimated range.`;
+    } else {
+        insight = `Your bike retains ${retentionRate}% of its original value. Consider investing in minor repairs and a thorough cleaning before selling. Proper documentation and transparent communication about the bike's condition will help attract serious buyers.`;
+    }
+    
+    document.getElementById('marketInsight').textContent = insight;
+}
+
+function generateRecommendations(data) {
+    const recommendations = [];
+    
+    if (data.service_history !== 'complete') {
+        recommendations.push('Gather all available service records to increase buyer confidence');
+    }
+    
+    if (data.condition !== 'excellent') {
+        recommendations.push('Consider minor repairs and professional detailing before listing');
+    }
+    
+    if (!data.modifications) {
+        recommendations.push('Highlight any quality upgrades or accessories in your listing');
+    }
+    
+    recommendations.push('Take high-quality photos in good lighting from multiple angles');
+    recommendations.push('Be transparent about any issues to build trust with buyers');
+    recommendations.push('Compare with similar listings in your area to set competitive pricing');
+    
+    document.getElementById('recommendations').innerHTML = recommendations.map(rec => 
+        `<li>${rec}</li>`
+    ).join('');
+}
+
+function printReport() {
+    window.print();
+}
+
+function shareResults() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Bike Resale Value Prediction',
+            text: `Estimated resale value: ${document.getElementById('estimatedPrice').textContent}`,
+            url: window.location.href
+        });
+    } else {
+        alert('Share feature not supported on this browser');
+    }
+}
+</script>
+
+<style>
+@media print {
+    .navbar, footer, .btn, form {
+        display: none !important;
+    }
+    #resultsContainer {
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+}
+</style>
+
+{% endblock %}

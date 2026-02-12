@@ -1,0 +1,554 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Accident/Issue Report - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem; text-align: center;">
+        Report an <span class="gradient-text">Incident</span> 🚨
+    </h1>
+    <p style="color: var(--text-gray); text-align: center; margin-bottom: 3rem;">
+        Help make riding safer by reporting accidents, safety issues, or bike problems
+    </p>
+    
+    <!-- Safety Notice -->
+    <div class="glass-card" style="margin-bottom: 2rem; background: rgba(255, 107, 53, 0.1); border-left: 4px solid var(--accent-orange);">
+        <div style="display: flex; align-items: start; gap: 1rem;">
+            <div style="font-size: 2rem;">⚠️</div>
+            <div>
+                <h3 style="color: var(--accent-orange); margin-bottom: 0.5rem;">Emergency Notice</h3>
+                <p style="color: var(--text-light); line-height: 1.6; margin: 0;">
+                    If this is a medical emergency, please call <strong style="color: var(--accent-orange);">108 (Ambulance)</strong> or 
+                    <strong style="color: var(--accent-orange);">100 (Police)</strong> immediately. This form is for reporting and documentation purposes only.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="glass-card">
+        <form method="POST" action="{{ url_for('reports.submit_report') }}" enctype="multipart/form-data">
+            
+            <!-- Report Type Selection -->
+            <div class="form-group">
+                <label class="form-label">Report Type *</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <label class="report-type-card" onclick="selectReportType('accident')">
+                        <input type="radio" name="incident_type" value="accident" required style="display: none;">
+                        <div class="report-icon">🚑</div>
+                        <div class="report-title">Accident</div>
+                        <div class="report-desc">Collision or crash incident</div>
+                    </label>
+                    
+                    <label class="report-type-card" onclick="selectReportType('near_miss')">
+                        <input type="radio" name="incident_type" value="near_miss" style="display: none;">
+                        <div class="report-icon">⚡</div>
+                        <div class="report-title">Near Miss</div>
+                        <div class="report-desc">Close call or dangerous situation</div>
+                    </label>
+                    
+                    <label class="report-type-card" onclick="selectReportType('mechanical')">
+                        <input type="radio" name="incident_type" value="mechanical" style="display: none;">
+                        <div class="report-icon">🔧</div>
+                        <div class="report-title">Mechanical Issue</div>
+                        <div class="report-desc">Bike malfunction or breakdown</div>
+                    </label>
+                    
+                    <label class="report-type-card" onclick="selectReportType('road_hazard')">
+                        <input type="radio" name="incident_type" value="road_hazard" style="display: none;">
+                        <div class="report-icon">🛣️</div>
+                        <div class="report-title">Road Hazard</div>
+                        <div class="report-desc">Dangerous road conditions</div>
+                    </label>
+                    
+                    <label class="report-type-card" onclick="selectReportType('theft')">
+                        <input type="radio" name="incident_type" value="theft" style="display: none;">
+                        <div class="report-icon">🔒</div>
+                        <div class="report-title">Theft/Vandalism</div>
+                        <div class="report-desc">Stolen or damaged bike</div>
+                    </label>
+                    
+                    <label class="report-type-card" onclick="selectReportType('other')">
+                        <input type="radio" name="incident_type" value="other" style="display: none;">
+                        <div class="report-icon">📋</div>
+                        <div class="report-title">Other</div>
+                        <div class="report-desc">Other safety concerns</div>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Bike Selection -->
+            <div class="form-group">
+                <label class="form-label">Your Bike (Optional)</label>
+                <select name="bike_id" class="form-select">
+                    <option value="">Select if incident involved your bike...</option>
+                    {% if user_bikes %}
+                        {% for user_bike in user_bikes %}
+                        <option value="{{ user_bike.bike.id }}">
+                            {{ user_bike.bike.brand }} {{ user_bike.bike.model }} - {{ user_bike.registration_number }}
+                        </option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            
+            <!-- Severity Level -->
+            <div class="form-group">
+                <label class="form-label">Severity Level *</label>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <label class="severity-badge severity-minor">
+                        <input type="radio" name="severity" value="minor" required style="display: none;">
+                        <span>Minor</span>
+                    </label>
+                    <label class="severity-badge severity-moderate">
+                        <input type="radio" name="severity" value="moderate" style="display: none;">
+                        <span>Moderate</span>
+                    </label>
+                    <label class="severity-badge severity-major">
+                        <input type="radio" name="severity" value="major" style="display: none;">
+                        <span>Major</span>
+                    </label>
+                    <label class="severity-badge severity-critical">
+                        <input type="radio" name="severity" value="critical" style="display: none;">
+                        <span>Critical</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Incident Date & Time -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Incident Date *</label>
+                    <input type="date" name="incident_date" class="form-input" max="{{ today }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Incident Time *</label>
+                    <input type="time" name="incident_time" class="form-input" required>
+                </div>
+            </div>
+            
+            <!-- Location -->
+            <div class="form-group">
+                <label class="form-label">Location *</label>
+                <input type="text" name="location" class="form-input" 
+                       placeholder="Street, Area, City" required>
+                <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                    📍 Be as specific as possible (e.g., "MG Road, Near Coffee Day, Bangalore")
+                </p>
+            </div>
+            
+            <!-- GPS Coordinates (Optional) -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Latitude (Optional)</label>
+                    <input type="text" name="latitude" class="form-input" placeholder="e.g., 12.9716">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Longitude (Optional)</label>
+                    <input type="text" name="longitude" class="form-input" placeholder="e.g., 77.5946">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" class="btn btn-secondary" onclick="getCurrentLocation()">
+                        📍 Get Current Location
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div class="form-group">
+                <label class="form-label">Incident Description *</label>
+                <textarea name="description" class="form-textarea" rows="6" 
+                          placeholder="Describe what happened in detail. Include road conditions, weather, traffic, and any other relevant information..." 
+                          required minlength="50"></textarea>
+                <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                    Minimum 50 characters. Be detailed and factual.
+                </p>
+            </div>
+            
+            <!-- Injuries & Damage -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Any Injuries?</label>
+                    <select name="injuries" class="form-select">
+                        <option value="none">No injuries</option>
+                        <option value="minor">Minor injuries (scratches, bruises)</option>
+                        <option value="moderate">Moderate injuries (fractures, cuts)</option>
+                        <option value="severe">Severe injuries (hospitalization required)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Bike Damage?</label>
+                    <select name="bike_damage" class="form-select">
+                        <option value="none">No damage</option>
+                        <option value="cosmetic">Cosmetic damage only</option>
+                        <option value="moderate">Moderate damage (repairable)</option>
+                        <option value="severe">Severe damage (major repair needed)</option>
+                        <option value="total_loss">Total loss</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Contributing Factors -->
+            <div class="form-group">
+                <label class="form-label">Contributing Factors (Check all that apply)</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.8rem;">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="factors" value="speeding">
+                        <span>Speeding</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="factors" value="wet_road">
+                        <span>Wet/Slippery Road</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="factors" value="poor_visibility">
+                        <span>Poor Visibility</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="factors" value="other_vehicle">
+                        <span>Other Vehicle Involved</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="factors" value="potholes">
+                        <span>Potholes/Road Defects</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="factors" value="mechanical">
+                        <span>Mechanical Failure</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="factors" value="distraction">
+                        <span>Distraction</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="factors" value="fatigue">
+                        <span>Fatigue</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Weather & Road Conditions -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Weather Condition</label>
+                    <select name="weather" class="form-select">
+                        <option value="clear">Clear/Sunny</option>
+                        <option value="cloudy">Cloudy</option>
+                        <option value="rainy">Rainy</option>
+                        <option value="foggy">Foggy/Misty</option>
+                        <option value="windy">Windy</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Road Condition</label>
+                    <select name="road_condition" class="form-select">
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="poor">Poor (potholes/cracks)</option>
+                        <option value="under_construction">Under Construction</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Police Report -->
+            <div class="form-group">
+                <label class="form-label">Was a police report filed?</label>
+                <div style="display: flex; gap: 2rem;">
+                    <label class="radio-label">
+                        <input type="radio" name="police_report" value="yes">
+                        <span>Yes</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="police_report" value="no">
+                        <span>No</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="police_report" value="pending">
+                        <span>Pending</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group" id="policeReportNumber" style="display: none;">
+                <label class="form-label">Police Report Number</label>
+                <input type="text" name="police_report_number" class="form-input" 
+                       placeholder="Enter FIR/report number">
+            </div>
+            
+            <!-- Insurance Claim -->
+            <div class="form-group">
+                <label class="form-label">Insurance claim filed?</label>
+                <div style="display: flex; gap: 2rem;">
+                    <label class="radio-label">
+                        <input type="radio" name="insurance_claim" value="yes">
+                        <span>Yes</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="insurance_claim" value="no">
+                        <span>No</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="insurance_claim" value="planning">
+                        <span>Planning to</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Photos/Evidence Upload -->
+            <div class="form-group">
+                <label class="form-label">Upload Photos/Evidence (Optional)</label>
+                <input type="file" name="photos" class="form-input" multiple accept="image/*" id="photoUpload">
+                <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                    📷 Upload up to 10 photos (max 5MB each). Include photos of damage, location, and any relevant evidence.
+                </p>
+                <div id="photoPreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; margin-top: 1rem;"></div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Contact Phone (Optional)</label>
+                    <input type="tel" name="contact_phone" class="form-input" 
+                           placeholder="For follow-up">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Contact Email (Optional)</label>
+                    <input type="email" name="contact_email" class="form-input" 
+                           placeholder="For updates" value="{{ current_user.email if current_user.is_authenticated else '' }}">
+                </div>
+            </div>
+            
+            <!-- Privacy & Consent -->
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="public_report" checked>
+                    <span style="color: var(--text-gray);">
+                        Make this report publicly visible (helps other riders stay safe). Personal contact information will remain private.
+                    </span>
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="agree_terms" required>
+                    <span style="color: var(--text-gray);">
+                        I confirm that this report is accurate to the best of my knowledge. *
+                    </span>
+                </label>
+            </div>
+            
+            <!-- Submit Buttons -->
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                <a href="{{ url_for('reports.view_reports') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    Submit Report
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Info Panel -->
+    <div class="glass-card" style="margin-top: 2rem; background: rgba(0, 217, 255, 0.1); border-left: 4px solid var(--accent-cyan);">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">ℹ️ Why Report?</h3>
+        <ul style="color: var(--text-gray); line-height: 1.8;">
+            <li>Help identify dangerous locations and conditions</li>
+            <li>Contribute to rider safety data and analytics</li>
+            <li>Alert other riders to potential hazards</li>
+            <li>Help manufacturers identify recurring mechanical issues</li>
+            <li>Support better road infrastructure planning</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+/* Report Type Cards */
+.report-type-card {
+    background: rgba(0, 217, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.report-type-card:hover {
+    border-color: rgba(0, 217, 255, 0.5);
+    background: rgba(0, 217, 255, 0.1);
+    transform: translateY(-3px);
+}
+
+.report-type-card.selected {
+    border-color: var(--accent-cyan);
+    background: rgba(0, 217, 255, 0.15);
+    box-shadow: var(--shadow-glow);
+}
+
+.report-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.report-title {
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.report-desc {
+    color: var(--text-gray);
+    font-size: 0.85rem;
+}
+
+/* Severity Badges */
+.severity-badge {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    font-weight: 600;
+}
+
+.severity-minor {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.severity-moderate {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.severity-major {
+    background: rgba(255, 107, 53, 0.2);
+    color: var(--accent-orange);
+}
+
+.severity-critical {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.severity-badge:hover,
+.severity-badge.selected {
+    transform: scale(1.05);
+    border-color: currentColor;
+}
+
+/* Checkbox Labels */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+    padding: 0.8rem;
+    background: rgba(0, 217, 255, 0.05);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.checkbox-label:hover {
+    background: rgba(0, 217, 255, 0.1);
+}
+
+.checkbox-label input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+}
+
+.radio-label input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+function selectReportType(type) {
+    // Remove all selected classes
+    document.querySelectorAll('.report-type-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked card
+    event.currentTarget.classList.add('selected');
+}
+
+// Show police report number field when "Yes" is selected
+document.querySelectorAll('input[name="police_report"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const reportNumberField = document.getElementById('policeReportNumber');
+        if (this.value === 'yes') {
+            reportNumberField.style.display = 'block';
+        } else {
+            reportNumberField.style.display = 'none';
+        }
+    });
+});
+
+// Severity badge selection
+document.querySelectorAll('.severity-badge').forEach(badge => {
+    badge.addEventListener('click', function() {
+        document.querySelectorAll('.severity-badge').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+    });
+});
+
+// Get current location
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            document.querySelector('input[name="latitude"]').value = position.coords.latitude.toFixed(6);
+            document.querySelector('input[name="longitude"]').value = position.coords.longitude.toFixed(6);
+            alert('Location captured successfully!');
+        }, function(error) {
+            alert('Unable to get location: ' + error.message);
+        });
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
+
+// Photo preview
+document.getElementById('photoUpload').addEventListener('change', function(e) {
+    const preview = document.getElementById('photoPreview');
+    preview.innerHTML = '';
+    
+    const files = Array.from(e.target.files).slice(0, 10); // Max 10 files
+    
+    files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            img.style.width = '100%';
+            img.style.height = '100px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '8px';
+            preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
+// Set max date to today
+document.querySelector('input[name="incident_date"]').max = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 2rem;">
+        Welcome back, <span class="gradient-text">{{ current_user.full_name or current_user.username }}</span>! 🏍️
+    </h1>
+    
+    <!-- Stats Overview -->
+    <div class="stats-container" style="margin-bottom: 3rem;">
+        <div class="stat-card">
+            <div class="stat-icon">🏍️</div>
+            <div class="stat-value">{{ total_bikes }}</div>
+            <div class="stat-label">My Bikes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🛣️</div>
+            <div class="stat-value">{{ total_distance }}</div>
+            <div class="stat-label">Total KM</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">{{ total_rides }}</div>
+            <div class="stat-label">Total Rides</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🔧</div>
+            <div class="stat-value">{{ total_maintenance }}</div>
+            <div class="stat-label">Maintenance Records</div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Quick Actions</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <a href="{{ url_for('dashboard.my_bikes') }}" class="btn btn-primary">+ Add New Bike</a>
+            <a href="{{ url_for('comparison.index') }}" class="btn btn-secondary">Compare Bikes</a>
+            <a href="{{ url_for('simulator.index') }}" class="btn btn-secondary">Performance Simulator</a>
+            <a href="{{ url_for('maintenance.index') }}" class="btn btn-orange">Check Maintenance</a>
+            <a href="{{ url_for('calculator.index') }}" class="btn btn-secondary">Cost Calculator</a>
+        </div>
+    </div>
+    
+    <!-- My Bikes -->
+    <div class="glass-card">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">My Bikes</h2>
+        {% if user_bikes %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                {% for user_bike in user_bikes %}
+                <div class="glass-card" style="background: rgba(0, 217, 255, 0.05);">
+                    <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">
+                        {{ user_bike.bike.brand }} {{ user_bike.bike.model }}
+                    </h3>
+                    <p style="color: var(--text-gray); margin-bottom: 1rem;">{{ user_bike.registration_number }}</p>
+                    <div style="display: flex; justify-content: space-between; color: var(--text-gray); font-size: 0.9rem;">
+                        <span>Current KM: <strong style="color: var(--accent-cyan);">{{ user_bike.current_km }}</strong></span>
+                        <span>Condition: <strong style="color: var(--accent-orange);">{{ user_bike.bike_condition|capitalize }}</strong></span>
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <a href="{{ url_for('maintenance.schedule', bike_id=user_bike.id) }}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Maintenance</a>
+                        <a href="{{ url_for('dashboard.bike_details', bike_id=user_bike.id) }}" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Details</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">
+                You haven't added any bikes yet. 
+                <a href="{{ url_for('dashboard.my_bikes') }}" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600; border-bottom: 2px solid var(--accent-cyan); transition: all 0.3s;">Add your first bike!</a>
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

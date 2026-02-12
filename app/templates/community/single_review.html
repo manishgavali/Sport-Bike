@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ review.title }} - Review{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <!-- Back Button -->
+    <a href="{{ url_for('community.index') }}" class="btn btn-secondary" style="margin-bottom: 2rem;">
+        ← Back to Reviews
+    </a>
+    
+    <!-- Review Header -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 2rem;">
+            <div style="flex: 1;">
+                <h1 style="color: var(--text-light); margin-bottom: 1rem;">{{ review.title }}</h1>
+                
+                <!-- Overall Rating -->
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 0.3rem;">
+                        {% for i in range(5) %}
+                            <span style="color: {% if i < review.rating %}var(--accent-orange){% else %}rgba(255, 255, 255, 0.2){% endif %}; font-size: 1.8rem;">★</span>
+                        {% endfor %}
+                    </div>
+                    <span style="color: var(--accent-orange); font-size: 1.5rem; font-weight: 700;">{{ review.rating }}.0</span>
+                </div>
+                
+                <!-- Author Info -->
+                <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                        <div style="width: 45px; height: 45px; border-radius: 50%; background: var(--gradient-accent); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem;">
+                            {{ review.author.username[0].upper() }}
+                        </div>
+                        <div>
+                            <p style="color: var(--text-light); font-weight: 600;">{{ review.author.username }}</p>
+                            <p style="color: var(--text-gray); font-size: 0.85rem;">{{ review.created_at.strftime('%B %d, %Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if review.is_verified %}
+                    <span style="background: rgba(76, 175, 80, 0.2); color: #4caf50; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                        ✓ Verified Owner
+                    </span>
+                    {% endif %}
+                    
+                    <span style="color: var(--text-gray); font-size: 0.9rem;">
+                        {{ review.ownership_duration or 'Ownership duration not specified' }}
+                    </span>
+                    
+                    {% if review.km_driven %}
+                    <span style="color: var(--text-gray); font-size: 0.9rem;">
+                        {{ '{:,}'.format(review.km_driven) }} km driven
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Bike Info Card -->
+            <div style="background: rgba(0, 217, 255, 0.1); padding: 1.5rem; border-radius: 15px; border: 2px solid rgba(0, 217, 255, 0.3); min-width: 250px;">
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.5rem;">Reviewing</p>
+                <h2 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">
+                    {{ review.bike.brand }} {{ review.bike.model }}
+                </h2>
+                <p style="color: var(--text-gray);">{{ review.bike.year }}</p>
+                {% if review.bike.price %}
+                <p style="color: var(--accent-orange); font-size: 1.2rem; font-weight: 700; margin-top: 1rem;">
+                    ₹{{ '{:,.0f}'.format(review.bike.price) }}
+                </p>
+                {% endif %}
+                <a href="{{ url_for('dashboard.bike_details', bike_id=review.bike.id) }}" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    View Bike Details
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Ratings -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📊 Detailed Ratings</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            <!-- Performance -->
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-gray);">⚡ Performance</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">{{ review.performance_rating }}/5</span>
+                </div>
+                <div style="width: 100%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+                    <div style="width: {{ (review.performance_rating / 5) * 100 }}%; height: 100%; background: var(--gradient-accent); transition: width 1s ease;"></div>
+                </div>
+            </div>
+            
+            <!-- Comfort -->
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-gray);">🪑 Comfort</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">{{ review.comfort_rating }}/5</span>
+                </div>
+                <div style="width: 100%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+                    <div style="width: {{ (review.comfort_rating / 5) * 100 }}%; height: 100%; background: var(--gradient-accent); transition: width 1s ease;"></div>
+                </div>
+            </div>
+            
+            <!-- Mileage -->
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-gray);">⛽ Mileage</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">{{ review.mileage_rating }}/5</span>
+                </div>
+                <div style="width: 100%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+                    <div style="width: {{ (review.mileage_rating / 5) * 100 }}%; height: 100%; background: var(--gradient-accent); transition: width 1s ease;"></div>
+                </div>
+            </div>
+            
+            <!-- Looks -->
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-gray);">🎨 Looks & Design</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">{{ review.looks_rating }}/5</span>
+                </div>
+                <div style="width: 100%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
+                    <div style="width: {{ (review.looks_rating / 5) * 100 }}%; height: 100%; background: var(--gradient-accent); transition: width 1s ease;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Review Content -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📝 Full Review</h3>
+        <div style="color: var(--text-light); line-height: 1.8; font-size: 1.05rem; white-space: pre-wrap;">{{ review.content }}</div>
+    </div>
+    
+    <!-- Pros and Cons -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Pros -->
+        {% if review.pros %}
+        <div class="glass-card" style="border-left: 4px solid #4caf50;">
+            <h3 style="color: #4caf50; margin-bottom: 1rem;">👍 What's Great</h3>
+            <div style="color: var(--text-light); line-height: 1.8; white-space: pre-wrap;">{{ review.pros }}</div>
+        </div>
+        {% endif %}
+        
+        <!-- Cons -->
+        {% if review.cons %}
+        <div class="glass-card" style="border-left: 4px solid var(--accent-orange);">
+            <h3 style="color: var(--accent-orange); margin-bottom: 1rem;">👎 What Could Be Better</h3>
+            <div style="color: var(--text-light); line-height: 1.8; white-space: pre-wrap;">{{ review.cons }}</div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Helpful/Like Section -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <p style="color: var(--text-gray);">Was this review helpful?</p>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="likeReview({{ review.id }})" id="likeBtn">
+                    👍 Helpful ({{ review.likes_count }})
+                </button>
+                <button class="btn btn-secondary" onclick="reportReview({{ review.id }})">
+                    🚩 Report
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Similar Reviews -->
+    {% if similar_reviews %}
+    <div class="glass-card">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">More Reviews of {{ review.bike.brand }} {{ review.bike.model }}</h3>
+        <div style="display: grid; gap: 1rem;">
+            {% for similar in similar_reviews[:3] %}
+            <a href="{{ url_for('community.single_review', review_id=similar.id) }}" 
+               style="display: block; padding: 1.5rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px; text-decoration: none; transition: all 0.3s ease;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                    <h4 style="color: var(--text-light); margin: 0;">{{ similar.title }}</h4>
+                    <div style="display: flex; gap: 0.2rem;">
+                        {% for i in range(similar.rating) %}
+                        <span style="color: var(--accent-orange); font-size: 0.9rem;">★</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin: 0;">
+                    By {{ similar.author.username }} • {{ similar.created_at.strftime('%B %d, %Y') }}
+                </p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function likeReview(reviewId) {
+    fetch(`/community/reviews/${reviewId}/like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const btn = document.getElementById('likeBtn');
+            btn.innerHTML = `👍 Helpful (${data.likes_count})`;
+            btn.style.background = 'var(--gradient-accent)';
+            btn.disabled = true;
+        } else {
+            alert(data.message || 'Unable to like review');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Please login to like reviews');
+    });
+}
+
+function reportReview(reviewId) {
+    const reason = prompt('Please specify the reason for reporting this review:');
+    if (reason) {
+        fetch(`/community/reviews/${reviewId}/report`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Review reported successfully. Our team will review it shortly.');
+            } else {
+                alert(data.message || 'Unable to report review');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Please login to report reviews');
+        });
+    }
+}
+
+// Animate progress bars on load
+window.addEventListener('load', function() {
+    const progressBars = document.querySelectorAll('[style*="width: "]');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 300);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics - Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+        <h1 class="fade-in">Platform <span class="gradient-text">Analytics</span> 📊</h1>
+        <div style="display: flex; gap: 1rem;">
+            <select class="form-select" id="timePeriod" onchange="updateAnalytics()">
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="365">Last Year</option>
+            </select>
+            <button class="btn btn-primary" onclick="exportReport()">Export Report</button>
+            <a href="{{ url_for('admin.index') }}" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+        <div class="glass-card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">📈</div>
+            <div style="font-size: 2.5rem; color: var(--accent-cyan); font-weight: 700; margin-bottom: 0.5rem;">
+                {{ growth_rate if growth_rate is defined else '+15.3' }}%
+            </div>
+            <div style="color: var(--text-gray);">User Growth</div>
+        </div>
+        
+        <div class="glass-card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">⭐</div>
+            <div style="font-size: 2.5rem; color: var(--accent-orange); font-weight: 700; margin-bottom: 0.5rem;">
+                {{ avg_rating if avg_rating is defined else '4.6' }}
+            </div>
+            <div style="color: var(--text-gray);">Average Rating</div>
+        </div>
+        
+        <div class="glass-card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏍️</div>
+            <div style="font-size: 2.5rem; color: #4caf50; font-weight: 700; margin-bottom: 0.5rem;">
+                {{ total_rides if total_rides is defined else '12,458' }}
+            </div>
+            <div style="color: var(--text-gray);">Total Rides Logged</div>
+        </div>
+        
+        <div class="glass-card" style="text-align: center; padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">💰</div>
+            <div style="font-size: 2.5rem; color: var(--accent-cyan); font-weight: 700; margin-bottom: 0.5rem;">
+                ₹{{ total_revenue if total_revenue is defined else '2.5M' }}
+            </div>
+            <div style="color: var(--text-gray);">Est. Value Generated</div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 1 -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- User Growth Chart -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">User Registration Trend</h3>
+            <div style="height: 300px;">
+                <canvas id="userGrowthChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- User Types Distribution -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">User Experience Levels</h3>
+            <div style="height: 300px;">
+                <canvas id="experienceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 2 -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Popular Brands -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Most Popular Brands</h3>
+            <div style="height: 300px;">
+                <canvas id="brandsChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Activity Heatmap -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Platform Activity</h3>
+            <div style="height: 300px;">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 3 -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Review Ratings Distribution -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Review Ratings Distribution</h3>
+            <div style="height: 300px;">
+                <canvas id="ratingsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Performers -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Top Reviewed Bikes -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Top Reviewed Bikes</h3>
+            <div style="display: grid; gap: 1rem;">
+                {% for i in range(5) %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                    <div>
+                        <p style="color: var(--text-light); font-weight: 600;">Yamaha R15 V4</p>
+                        <div style="display: flex; gap: 0.2rem; margin-top: 0.3rem;">
+                            {% for j in range(5) %}
+                            <span style="color: var(--accent-orange); font-size: 0.9rem;">★</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">{{ 150 - (i * 20) }} reviews</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Most Active Users -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Most Active Users</h3>
+            <div style="display: grid; gap: 1rem;">
+                {% for i in range(5) %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-accent); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                            U{{ i + 1 }}
+                        </div>
+                        <div>
+                            <p style="color: var(--text-light); font-weight: 600;">user{{ i + 1 }}</p>
+                            <p style="color: var(--text-gray); font-size: 0.85rem;">{{ (50 - i * 5) }} contributions</p>
+                        </div>
+                    </div>
+                    <span style="color: var(--accent-orange);">🏆</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart');
+new Chart(userGrowthCtx, {
+    type: 'line',
+    data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+            label: 'New Users',
+            data: ,
+            borderColor: '#00d9ff',
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Experience Distribution Chart
+const experienceCtx = document.getElementById('experienceChart');
+new Chart(experienceCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Beginner', 'Intermediate', 'Expert'],
+        datasets: [{
+            data:,[1]
+            backgroundColor: ['#00d9ff', '#4169e1', '#ff6b35']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+
+// Brands Chart
+const brandsCtx = document.getElementById('brandsChart');
+new Chart(brandsCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Yamaha', 'KTM', 'Kawasaki', 'Honda', 'Suzuki'],
+        datasets: [{
+            label: 'Reviews',
+            data: ,
+            backgroundColor: 'rgba(0, 217, 255, 0.7)',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } }
+    }
+});
+
+// Activity Chart
+const activityCtx = document.getElementById('activityChart');
+new Chart(activityCtx, {
+    type: 'line',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Daily Activity',
+            data: ,
+            borderColor: '#ff6b35',
+            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } }
+    }
+});
+
+// Ratings Chart
+const ratingsCtx = document.getElementById('ratingsChart');
+new Chart(ratingsCtx, {
+    type: 'bar',
+    data: {
+        labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+        datasets: [{
+            label: 'Number of Reviews',
+            data:,[2][3]
+            backgroundColor: [
+                'rgba(244, 67, 54, 0.7)',
+                'rgba(255, 152, 0, 0.7)',
+                'rgba(255, 193, 7, 0.7)',
+                'rgba(139, 195, 74, 0.7)',
+                'rgba(76, 175, 80, 0.7)'
+            ],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } }
+    }
+});
+
+function updateAnalytics() {
+    const period = document.getElementById('timePeriod').value;
+    // Implement data refresh
+    location.reload();
+}
+
+function exportReport() {
+    window.location.href = '/admin/analytics/export';
+}
+</script>
+{% endblock %}

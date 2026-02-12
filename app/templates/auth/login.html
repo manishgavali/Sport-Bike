@@ -1,0 +1,798 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div class="login-advanced-wrapper">
+    <div class="login-container">
+        <!-- Left Side - Visual Section -->
+        <div class="login-visual-section">
+            <div class="visual-overlay"></div>
+            
+            <div class="visual-content-top">
+                <div class="brand-section">
+                    <div class="brand-icon-wrapper">
+                        <span class="brand-icon">🏍️</span>
+                    </div>
+                    <h2 class="brand-title">Smart Sport Bike</h2>
+                    <p class="brand-subtitle">Ride Smart, Live Free</p>
+                </div>
+            </div>
+            
+            <div class="visual-content-center">
+                <div class="hero-image-container">
+                    <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&h=1000&fit=crop" alt="Sport Bike" class="hero-bike-image">
+                    <div class="image-gradient-overlay"></div>
+                </div>
+            </div>
+            
+            <div class="visual-content-bottom">
+                <div class="testimonial-card">
+                    <div class="testimonial-icon">💬</div>
+                    <p class="testimonial-text">"The best platform for sport bike enthusiasts!"</p>
+                    <div class="testimonial-author">
+                        <span class="author-name">Jason Lester</span>
+                        <span class="author-role">Pro Rider</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Animated Elements -->
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Form Section -->
+        <div class="login-form-section">
+            <div class="form-wrapper">
+                <div class="form-header-section">
+                    <h1 class="form-title">Welcome Back! 👋</h1>
+                    <p class="form-subtitle">Sign in to continue your journey</p>
+                </div>
+                
+                <!-- Social Login Buttons -->
+                <div class="social-login-grid">
+                    <button type="button" class="social-login-btn facebook-btn">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Facebook
+                    </button>
+                    <button type="button" class="social-login-btn google-btn">
+                        <svg width="22" height="22" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Google
+                    </button>
+                </div>
+                
+                <div class="form-divider">
+                    <span>or sign in with email</span>
+                </div>
+                
+                <!-- Login Form -->
+                <form method="POST" action="{{ url_for('auth.login') }}" class="login-form-advanced">
+                    <div class="input-field-group">
+                        <input type="text" name="username" id="username" class="advanced-input" placeholder=" " required>
+                        <label for="username" class="advanced-label">Username</label>
+                        <div class="field-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="input-field-group">
+                        <input type="password" name="password" id="password" class="advanced-input" placeholder=" " required>
+                        <label for="password" class="advanced-label">Password</label>
+                        <div class="field-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="form-options">
+                        <label class="remember-checkbox">
+                            <input type="checkbox" name="remember" id="remember">
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-label">Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="login-submit-btn">
+                        <span>Sign In</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+                
+                <div class="form-footer-section">
+                    Don't have an account? <a href="{{ url_for('auth.register') }}" class="register-link">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Reset & Base */
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+    
+    .login-advanced-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1034 50%, #0f1419 100%);
+        padding: 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Animated Background Glow */
+    .login-advanced-wrapper::before {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        top: -250px;
+        left: -250px;
+        animation: glowPulse 10s ease-in-out infinite;
+    }
+    
+    .login-advanced-wrapper::after {
+        content: '';
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        bottom: -200px;
+        right: -200px;
+        animation: glowPulse 8s ease-in-out infinite reverse;
+    }
+    
+    @keyframes glowPulse {
+        0%, 100% { transform: scale(1); opacity: 0.4; }
+        50% { transform: scale(1.3); opacity: 0.7; }
+    }
+    
+    /* Main Container */
+    .login-container {
+        display: flex;
+        width: 95%;
+        max-width: 1400px;
+        min-height: 85vh;
+        background: rgba(15, 20, 35, 0.75);
+        backdrop-filter: blur(25px);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7),
+                    inset 0 0 0 1px rgba(236, 72, 153, 0.2);
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Left Visual Section */
+    .login-visual-section {
+        flex: 1;
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 3rem;
+        overflow: hidden;
+    }
+    
+    .visual-overlay {
+        position: absolute;
+        inset: 0;
+        background: url('data:image/svg+xml,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(236,72,153,0.15)"/></pattern></defs><rect width="60" height="60" fill="url(%23dots)"/></svg>');
+        opacity: 0.5;
+    }
+    
+    .visual-content-top,
+    .visual-content-center,
+    .visual-content-bottom {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Brand Section */
+    .brand-section {
+        text-align: center;
+    }
+    
+    .brand-icon-wrapper {
+        display: inline-block;
+        animation: bikeRock 4s ease-in-out infinite;
+    }
+    
+    @keyframes bikeRock {
+        0%, 100% { transform: rotate(-3deg) translateY(0px); }
+        25% { transform: rotate(3deg) translateY(-10px); }
+        50% { transform: rotate(-2deg) translateY(-5px); }
+        75% { transform: rotate(2deg) translateY(-8px); }
+    }
+    
+    .brand-icon {
+        font-size: 4.5rem;
+        display: block;
+        filter: drop-shadow(0 10px 20px rgba(236, 72, 153, 0.5));
+    }
+    
+    .brand-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 1rem 0 0.5rem;
+        letter-spacing: -2px;
+    }
+    
+    .brand-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.1rem;
+        font-weight: 500;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    
+    /* Hero Image */
+    .hero-image-container {
+        position: relative;
+        margin: 2rem 0;
+        padding: 5px;
+        background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+        border-radius: 25px;
+        animation: borderRotate 4s linear infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @keyframes borderRotate {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .hero-bike-image {
+        width: 100%;
+        height: 480px;
+        object-fit: cover;
+        object-position: center center;
+        border-radius: 22px;
+        display: block;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .image-gradient-overlay {
+        position: absolute;
+        inset: 5px;
+        border-radius: 22px;
+        background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+        pointer-events: none;
+    }
+    
+    /* Testimonial Card */
+    .testimonial-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(236, 72, 153, 0.3);
+        border-radius: 20px;
+        padding: 1.75rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .testimonial-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #ec4899, #8b5cf6);
+    }
+    
+    .testimonial-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .testimonial-text {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+        line-height: 1.6;
+        font-style: italic;
+        margin-bottom: 1rem;
+    }
+    
+    .testimonial-author {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .author-name {
+        color: #ec4899;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+    
+    .author-role {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+    }
+    
+    /* Floating Shapes */
+    .floating-shapes {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+    
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+    }
+    
+    .shape-1 {
+        width: 80px;
+        height: 80px;
+        top: 15%;
+        left: 10%;
+        animation: floatShape 7s ease-in-out infinite;
+    }
+    
+    .shape-2 {
+        width: 60px;
+        height: 60px;
+        top: 65%;
+        right: 15%;
+        animation: floatShape 9s ease-in-out infinite 2s;
+    }
+    
+    .shape-3 {
+        width: 50px;
+        height: 50px;
+        bottom: 20%;
+        left: 20%;
+        animation: floatShape 11s ease-in-out infinite 4s;
+    }
+    
+    @keyframes floatShape {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        25% { transform: translate(30px, -40px) scale(1.1); }
+        50% { transform: translate(-20px, -60px) scale(0.9); }
+        75% { transform: translate(40px, -30px) scale(1.05); }
+    }
+    
+    /* Right Form Section */
+    .login-form-section {
+        flex: 1;
+        padding: 3rem 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(10, 14, 26, 0.9);
+        overflow-y: auto;
+    }
+    
+    .form-wrapper {
+        width: 100%;
+        max-width: 480px;
+    }
+    
+    /* Form Header */
+    .form-header-section {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .form-title {
+        font-size: 2.75rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ec4899, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+        letter-spacing: -2px;
+    }
+    
+    .form-subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.05rem;
+    }
+    
+    /* Social Login Grid */
+    .social-login-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .social-login-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        padding: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .social-login-btn:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .facebook-btn:hover {
+        border-color: #1877F2;
+        box-shadow: 0 8px 25px rgba(24, 119, 242, 0.3);
+    }
+    
+    .google-btn:hover {
+        border-color: #4285F4;
+        box-shadow: 0 8px 25px rgba(66, 133, 244, 0.3);
+    }
+    
+    /* Form Divider */
+    .form-divider {
+        text-align: center;
+        margin: 2rem 0;
+        position: relative;
+    }
+    
+    .form-divider::before,
+    .form-divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 42%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    }
+    
+    .form-divider::before { left: 0; }
+    .form-divider::after { right: 0; }
+    
+    .form-divider span {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+        background: rgba(10, 14, 26, 0.9);
+        padding: 0 1.25rem;
+        position: relative;
+    }
+    
+    /* Advanced Form */
+    .login-form-advanced {
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+    }
+    
+    .input-field-group {
+        position: relative;
+    }
+    
+    .advanced-input {
+        width: 100%;
+        padding: 1.1rem 1.1rem 1.1rem 3.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(139, 92, 246, 0.25);
+        border-radius: 14px;
+        color: #fff;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+    }
+    
+    .advanced-input:focus {
+        border-color: #8b5cf6;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.12);
+    }
+    
+    .advanced-input::placeholder {
+        color: transparent;
+    }
+    
+    .advanced-label {
+        position: absolute;
+        left: 3.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 1rem;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .advanced-input:focus + .advanced-label,
+    .advanced-input:not(:placeholder-shown) + .advanced-label {
+        top: -12px;
+        left: 1rem;
+        font-size: 0.75rem;
+        color: #8b5cf6;
+        background: rgba(10, 14, 26, 0.95);
+        padding: 0 0.5rem;
+        font-weight: 600;
+    }
+    
+    .field-icon {
+        position: absolute;
+        left: 1.1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.4);
+        pointer-events: none;
+        transition: color 0.3s ease;
+    }
+    
+    .advanced-input:focus ~ .field-icon {
+        color: #8b5cf6;
+    }
+    
+    /* Password Toggle */
+    .toggle-password {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.4);
+        cursor: pointer;
+        padding: 0.5rem;
+        transition: color 0.3s ease;
+    }
+    
+    .toggle-password:hover {
+        color: #8b5cf6;
+    }
+    
+    /* Form Options */
+    .form-options {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: -0.5rem;
+    }
+    
+    .remember-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .remember-checkbox input[type="checkbox"] {
+        display: none;
+    }
+    
+    .checkbox-custom {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(139, 92, 246, 0.4);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .remember-checkbox input[type="checkbox"]:checked + .checkbox-custom {
+        background: linear-gradient(135deg, #ec4899, #8b5cf6);
+        border-color: #8b5cf6;
+    }
+    
+    .remember-checkbox input[type="checkbox"]:checked + .checkbox-custom::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    .checkbox-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+    
+    .forgot-link {
+        color: #ec4899;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .forgot-link:hover {
+        color: #8b5cf6;
+        text-decoration: underline;
+    }
+    
+    /* Submit Button */
+    .login-submit-btn {
+        width: 100%;
+        padding: 1.2rem;
+        background: linear-gradient(135deg, #ec4899, #8b5cf6);
+        border: none;
+        border-radius: 14px;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 12px 35px rgba(236, 72, 153, 0.4);
+        margin-top: 1rem;
+    }
+    
+    .login-submit-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 45px rgba(236, 72, 153, 0.6);
+    }
+    
+    .login-submit-btn svg {
+        transition: transform 0.3s ease;
+    }
+    
+    .login-submit-btn:hover svg {
+        transform: translateX(6px);
+    }
+    
+    /* Form Footer */
+    .form-footer-section {
+        text-align: center;
+        margin-top: 2rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95rem;
+    }
+    
+    .register-link {
+        color: #ec4899;
+        text-decoration: none;
+        font-weight: 700;
+        transition: color 0.3s ease;
+    }
+    
+    .register-link:hover {
+        color: #8b5cf6;
+        text-decoration: underline;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .login-container {
+            max-width: 95%;
+        }
+        
+        .hero-bike-image {
+            height: 420px;
+        }
+    }
+    
+    @media (max-width: 1024px) {
+        .login-container {
+            flex-direction: column;
+            min-height: auto;
+        }
+        
+        .login-visual-section {
+            min-height: 350px;
+            padding: 2rem;
+        }
+        
+        .hero-bike-image {
+            height: 350px;
+        }
+        
+        .brand-title {
+            font-size: 2rem;
+        }
+        
+        .testimonial-card {
+            display: none;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .login-container {
+            width: 100%;
+            border-radius: 0;
+            min-height: 100vh;
+        }
+        
+        .login-visual-section {
+            display: none;
+        }
+        
+        .login-form-section {
+            padding: 2rem 1.5rem;
+        }
+        
+        .form-title {
+            font-size: 2.25rem;
+        }
+        
+        .social-login-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-options {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+
+<script>
+    // Password Visibility Toggle
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.querySelector('.eye-icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+    }
+    
+    // Social Login Handlers
+    document.querySelector('.facebook-btn').addEventListener('click', function() {
+        alert('Facebook login will be implemented soon!');
+    });
+    
+    document.querySelector('.google-btn').addEventListener('click', function() {
+        alert('Google login will be implemented soon!');
+    });
+</script>
+{% endblock %}

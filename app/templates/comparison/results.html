@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Comparison Results{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem;">
+        Comparison <span class="gradient-text">Results</span>
+    </h1>
+    <p style="color: var(--text-gray); margin-bottom: 3rem;">Comparing {{ bikes|length }} selected bikes</p>
+    
+    <a href="{{ url_for('comparison.index') }}" class="btn btn-secondary" style="margin-bottom: 2rem;">← Back to Selection</a>
+    
+    <!-- Quick Overview Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+        {% for bike in bikes %}
+        <div class="glass-card" style="text-align: center; padding: 1rem;">
+            <div style="width: 100%; height: 200px; background: rgba(0, 217, 255, 0.05); border-radius: 10px; overflow: hidden; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                <img src="{{ url_for('static', filename='images/bikes/' + bike.slug + '.jpg') }}" alt="{{ bike.brand }} {{ bike.model }}" style="width: 100%; height: 100%; object-fit: contain; padding: 0.5rem;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 3rem; display: flex; align-items: center; justify-content: center; height: 100%;\'>🏍️</div>';">
+            </div>
+            <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">{{ bike.brand }} {{ bike.model }}</h3>
+            <p style="color: var(--accent-cyan); font-size: 1.2rem; font-weight: 600;">₹{{ "{:,.0f}".format(bike.price) }}</p>
+            <p style="color: var(--text-gray); font-size: 0.9rem;">{{ bike.engine_cc }}cc | {{ bike.power }} PS</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Engine & Performance -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">⚡ Engine & Performance</h2>
+        <div class="table-container" style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Bike</th>
+                        <th>Engine Type</th>
+                        <th>CC</th>
+                        <th>Power (PS)</th>
+                        <th>Torque (Nm)</th>
+                        <th>Gearbox</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bike in bikes %}
+                    <tr>
+                        <td style="font-weight: 600; color: var(--accent-cyan);">{{ bike.brand }} {{ bike.model }}</td>
+                        <td style="font-size: 0.85rem;">{{ bike.engine_type }}</td>
+                        <td>{{ bike.engine_cc }}cc</td>
+                        <td style="font-weight: 600;">{{ bike.power }} PS</td>
+                        <td>{{ bike.torque }} Nm</td>
+                        <td style="font-size: 0.85rem;">{{ bike.gearbox }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Weight & Dimensions -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📏 Weight & Dimensions</h2>
+        <div class="table-container" style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Bike</th>
+                        <th>Weight (kg)</th>
+                        <th>Seat Height (mm)</th>
+                        <th>Power/Weight</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bike in bikes %}
+                    <tr>
+                        <td style="font-weight: 600; color: var(--accent-cyan);">{{ bike.brand }} {{ bike.model }}</td>
+                        <td>{{ bike.weight }} kg</td>
+                        <td>{{ bike.seat_height }} mm</td>
+                        <td style="font-weight: 600; color: var(--accent-orange);">{{ bike.power_to_weight }} PS/kg</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Fuel Economy -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">⛽ Fuel Economy</h2>
+        <div class="table-container" style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Bike</th>
+                        <th>Mileage (km/l)</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bike in bikes %}
+                    <tr>
+                        <td style="font-weight: 600; color: var(--accent-cyan);">{{ bike.brand }} {{ bike.model }}</td>
+                        <td style="font-weight: 600;">{{ bike.mileage }} km/l</td>
+                        <td><span style="background: rgba(0, 217, 255, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">{{ bike.category }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Price Comparison -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">💰 Price & Value</h2>
+        <div class="table-container" style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Bike</th>
+                        <th>Price</th>
+                        <th>Price/PS</th>
+                        <th>Value Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bike in bikes %}
+                    <tr>
+                        <td style="font-weight: 600; color: var(--accent-cyan);">{{ bike.brand }} {{ bike.model }}</td>
+                        <td>₹{{ "{:,.0f}".format(bike.price) }}</td>
+                        <td>₹{{ "{:,.0f}".format(bike.price_per_hp) }}/PS</td>
+                        <td>
+                            {% if bike.price_per_hp < 10000 %}
+                            <span style="background: rgba(0, 255, 0, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px; color: #0f0;">Excellent</span>
+                            {% elif bike.price_per_hp < 20000 %}
+                            <span style="background: rgba(0, 217, 255, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px;">Good</span>
+                            {% else %}
+                            <span style="background: rgba(255, 150, 0, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px; color: #fa0;">Premium</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Features & Owner Notes -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">✨ Features & Owner Notes</h2>
+        <div style="display: grid; gap: 1.5rem;">
+            {% for bike in bikes %}
+            <div style="background: rgba(0, 217, 255, 0.05); padding: 1.5rem; border-radius: 10px; border-left: 3px solid var(--accent-cyan);">
+                <h3 style="color: var(--text-light); margin-bottom: 1rem;">{{ bike.brand }} {{ bike.model }}</h3>
+                
+                <div style="margin-bottom: 1rem;">
+                    <h4 style="color: var(--accent-orange); font-size: 0.9rem; margin-bottom: 0.5rem;">Key Features:</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {% for feature in bike.features %}
+                        <span style="background: rgba(0, 217, 255, 0.2); padding: 0.4rem 0.8rem; border-radius: 15px; font-size: 0.85rem; color: var(--text-light);">{{ feature }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: var(--accent-orange); font-size: 0.9rem; margin-bottom: 0.5rem;">Owner Should Know:</h4>
+                    <p style="color: var(--text-gray); line-height: 1.6; font-size: 0.95rem;">{{ bike.owner_notes }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Recommendations -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">🎯 Recommendations</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            {% set best_power = bikes|sort(attribute='power', reverse=True)|first %}
+            {% set best_value = bikes|sort(attribute='price_per_hp')|first %}
+            {% set cheapest = bikes|sort(attribute='price')|first %}
+            
+            <div style="background: rgba(0, 217, 255, 0.1); padding: 1.5rem; border-radius: 10px;">
+                <h3 style="color: var(--accent-orange); margin-bottom: 0.5rem;">⚡ Most Powerful</h3>
+                <p style="color: var(--text-light); font-weight: 600;">{{ best_power.brand }} {{ best_power.model }}</p>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">{{ best_power.power }} HP</p>
+            </div>
+            
+            <div style="background: rgba(0, 217, 255, 0.1); padding: 1.5rem; border-radius: 10px;">
+                <h3 style="color: var(--accent-orange); margin-bottom: 0.5rem;">💎 Best Value</h3>
+                <p style="color: var(--text-light); font-weight: 600;">{{ best_value.brand }} {{ best_value.model }}</p>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">₹{{ "{:,.0f}".format(best_value.price_per_hp) }}/HP</p>
+            </div>
+            
+            <div style="background: rgba(0, 217, 255, 0.1); padding: 1.5rem; border-radius: 10px;">
+                <h3 style="color: var(--accent-orange); margin-bottom: 0.5rem;">💰 Most Affordable</h3>
+                <p style="color: var(--text-light); font-weight: 600;">{{ cheapest.brand }} {{ cheapest.model }}</p>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">₹{{ "{:,.0f}".format(cheapest.price) }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 3rem;">
+        <a href="{{ url_for('comparison.index') }}" class="btn btn-secondary">Compare More Bikes</a>
+    </div>
+</div>
+{% endblock %}

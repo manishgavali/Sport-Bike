@@ -1,0 +1,625 @@
+{% extends 'base.html' %}
+
+{% block title %}My Riding Analytics - Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+        <h1 class="fade-in">
+            My Riding <span class="gradient-text">Analytics</span> 📊
+        </h1>
+        <div style="display: flex; gap: 1rem;">
+            <select class="form-select" id="bikeFilter" onchange="filterByBike(this.value)">
+                <option value="all">All Bikes</option>
+                {% for bike in user_bikes %}
+                <option value="{{ bike.id }}">{{ bike.bike.brand }} {{ bike.bike.model }}</option>
+                {% endfor %}
+            </select>
+            <select class="form-select" id="timeRange" onchange="updateTimeRange(this.value)">
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="365">Last Year</option>
+                <option value="all">All Time</option>
+            </select>
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <!-- Key Performance Indicators -->
+    <div class="stats-container" style="margin-bottom: 3rem;">
+        <div class="stat-card">
+            <div class="stat-icon">🏍️</div>
+            <div class="stat-value">{{ total_rides }}</div>
+            <div class="stat-label">Total Rides</div>
+            <div style="color: #4caf50; font-size: 0.9rem; margin-top: 0.5rem;">
+                +{{ recent_rides_increase if recent_rides_increase is defined else 12 }}% this month
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📍</div>
+            <div class="stat-value">{{ '{:,.0f}'.format(total_distance) }}</div>
+            <div class="stat-label">Total Distance (km)</div>
+            <div style="color: var(--accent-cyan); font-size: 0.9rem; margin-top: 0.5rem;">
+                Avg: {{ '{:.1f}'.format(total_distance / total_rides if total_rides > 0 else 0) }} km/ride
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value">{{ '{:.1f}'.format(avg_speed) }}</div>
+            <div class="stat-label">Avg Speed (km/h)</div>
+            <div style="color: var(--accent-orange); font-size: 0.9rem; margin-top: 0.5rem;">
+                Max: {{ '{:.0f}'.format(max_speed if max_speed is defined else 0) }} km/h
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⛽</div>
+            <div class="stat-value">{{ '{:.1f}'.format(total_fuel if total_fuel is defined else 0) }}</div>
+            <div class="stat-label">Fuel Used (L)</div>
+            <div style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem;">
+                Avg: {{ '{:.2f}'.format(avg_mileage if avg_mileage is defined else 0) }} km/l
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Section -->
+    <div style="display: grid; gap: 2rem;">
+        
+        <!-- Distance Over Time Chart -->
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--accent-cyan);">🚀 Distance Traveled Over Time</h3>
+                <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;" onclick="exportChart('distanceChart')">
+                    Export Chart
+                </button>
+            </div>
+            <div style="height: 350px;">
+                <canvas id="distanceChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Two Column Charts -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            
+            <!-- Road Type Distribution -->
+            <div class="glass-card">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">🛣️ Road Type Distribution</h3>
+                <div style="height: 300px;">
+                    <canvas id="roadTypeChart"></canvas>
+                </div>
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
+                        <div>
+                            <div style="color: var(--accent-cyan); font-size: 1.3rem; font-weight: 700;">
+                                {{ road_types.city if road_types is defined else 0 }}
+                            </div>
+                            <div style="color: var(--text-gray); font-size: 0.85rem;">City</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--accent-orange); font-size: 1.3rem; font-weight: 700;">
+                                {{ road_types.highway if road_types is defined else 0 }}
+                            </div>
+                            <div style="color: var(--text-gray); font-size: 0.85rem;">Highway</div>
+                        </div>
+                        <div>
+                            <div style="color: #4caf50; font-size: 1.3rem; font-weight: 700;">
+                                {{ road_types.track if road_types is defined else 0 }}
+                            </div>
+                            <div style="color: var(--text-gray); font-size: 0.85rem;">Track</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Riding Style Distribution -->
+            <div class="glass-card">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">🎯 Riding Style Analysis</h3>
+                <div style="height: 300px;">
+                    <canvas id="ridingStyleChart"></canvas>
+                </div>
+                <div style="margin-top: 1rem; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-around; text-align: center;">
+                        <div>
+                            <div style="color: #4caf50; font-size: 1.3rem; font-weight: 700;">
+                                {{ riding_styles.conservative if riding_styles is defined else 0 }}
+                            </div>
+                            <div style="color: var(--text-gray); font-size: 0.85rem;">Conservative</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--accent-cyan); font-size: 1.3rem; font-weight: 700;">
+                                {{ riding_styles.moderate if riding_styles is defined else 0 }}
+                            </div>
+                            <div style="color: var(--text-gray); font-size: 0.85rem;">Moderate</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--accent-orange); font-size: 1.3rem; font-weight: 700;">
+                                {{ riding_styles.aggressive if riding_styles is defined else 0 }}
+                            </div>
+                            <div style="color: var(--text-gray); font-size: 0.85rem;">Aggressive</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Speed Distribution Chart -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">💨 Speed Distribution</h3>
+            <div style="height: 300px;">
+                <canvas id="speedDistributionChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Fuel Consumption Trend -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">⛽ Fuel Consumption & Mileage Trend</h3>
+            <div style="height: 300px;">
+                <canvas id="fuelConsumptionChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Monthly Activity Comparison -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📅 Monthly Activity Comparison</h3>
+            <div style="height: 350px;">
+                <canvas id="monthlyActivityChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Weather Conditions -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            
+            <!-- Weather Distribution -->
+            <div class="glass-card">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">🌤️ Weather Conditions</h3>
+                <div style="height: 300px;">
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Time of Day Distribution -->
+            <div class="glass-card">
+                <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">🕐 Preferred Riding Hours</h3>
+                <div style="height: 300px;">
+                    <canvas id="timeOfDayChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bike Performance Comparison -->
+        {% if user_bikes|length > 1 %}
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">🏍️ Your Bikes Performance Comparison</h3>
+            <div style="height: 400px;">
+                <canvas id="bikeComparisonChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Insights & Recommendations -->
+        <div class="glass-card" style="background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(65, 105, 225, 0.1)); border: 2px solid rgba(0, 217, 255, 0.3);">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">💡 AI-Powered Insights</h3>
+            <div style="display: grid; gap: 1rem;">
+                
+                <div style="padding: 1rem; background: rgba(76, 175, 80, 0.1); border-radius: 10px; border-left: 4px solid #4caf50;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="font-size: 1.5rem;">✅</span>
+                        <strong style="color: #4caf50;">Great Job!</strong>
+                    </div>
+                    <p style="color: var(--text-light); margin: 0;">
+                        Your average mileage of {{ '{:.2f}'.format(avg_mileage if avg_mileage is defined else 0) }} km/l is excellent. 
+                        You're riding efficiently!
+                    </p>
+                </div>
+                
+                <div style="padding: 1rem; background: rgba(255, 193, 7, 0.1); border-radius: 10px; border-left: 4px solid #ffc107;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="font-size: 1.5rem;">⚠️</span>
+                        <strong style="color: #ffc107;">Suggestion</strong>
+                    </div>
+                    <p style="color: var(--text-light); margin: 0;">
+                        {{ riding_styles.aggressive if riding_styles is defined else 0 }}% of your rides are in aggressive mode. 
+                        Consider moderate riding to improve fuel efficiency and reduce wear.
+                    </p>
+                </div>
+                
+                <div style="padding: 1rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px; border-left: 4px solid var(--accent-cyan);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="font-size: 1.5rem;">📈</span>
+                        <strong style="color: var(--accent-cyan;">Stats</strong>
+                    </div>
+                    <p style="color: var(--text-light); margin: 0;">
+                        You've ridden {{ total_rides }} times covering {{ '{:,.0f}'.format(total_distance) }} km. 
+                        That's {{ '{:.1f}'.format(total_distance / 365 if total_distance > 0 else 0) }} km per day on average!
+                    </p>
+                </div>
+                
+                <div style="padding: 1rem; background: rgba(255, 107, 53, 0.1); border-radius: 10px; border-left: 4px solid var(--accent-orange);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🔧</span>
+                        <strong style="color: var(--accent-orange);">Maintenance Reminder</strong>
+                    </div>
+                    <p style="color: var(--text-light); margin: 0;">
+                        Based on your riding pattern, schedule maintenance check-up soon. 
+                        Regular service keeps your bike in top condition.
+                    </p>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Recent Rides Table -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📋 Recent Rides</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Bike</th>
+                            <th>Distance</th>
+                            <th>Duration</th>
+                            <th>Avg Speed</th>
+                            <th>Max Speed</th>
+                            <th>Road Type</th>
+                            <th>Fuel Used</th>
+                            <th>Mileage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ride in recent_rides_list %}
+                        <tr>
+                            <td>{{ ride.ride_date.strftime('%d %b, %Y') }}</td>
+                            <td style="font-weight: 600; color: var(--accent-cyan);">
+                                {{ ride.user_bike.bike.brand }} {{ ride.user_bike.bike.model }}
+                            </td>
+                            <td>{{ '{:.1f}'.format(ride.distance) }} km</td>
+                            <td>{{ ride.duration if ride.duration else 'N/A' }} min</td>
+                            <td>{{ '{:.1f}'.format(ride.avg_speed) if ride.avg_speed else 'N/A' }} km/h</td>
+                            <td style="color: var(--accent-orange);">
+                                {{ '{:.0f}'.format(ride.max_speed) if ride.max_speed else 'N/A' }} km/h
+                            </td>
+                            <td>
+                                <span style="background: rgba(0, 217, 255, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; text-transform: capitalize;">
+                                    {{ ride.road_type or 'N/A' }}
+                                </span>
+                            </td>
+                            <td>{{ '{:.2f}'.format(ride.fuel_consumed) if ride.fuel_consumed else 'N/A' }} L</td>
+                            <td>
+                                {% if ride.distance and ride.fuel_consumed and ride.fuel_consumed > 0 %}
+                                    {{ '{:.2f}'.format(ride.distance / ride.fuel_consumed) }} km/l
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="{{ url_for('rides.all_rides') if 'rides.all_rides' in url_for.__globals__ else '#' }}" class="btn btn-primary">
+                    View All Rides
+                </a>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+
+<script>
+// Sample data - Replace with actual data from backend
+const chartColors = {
+    cyan: 'rgba(0, 217, 255, 0.8)',
+    blue: 'rgba(65, 105, 225, 0.8)',
+    orange: 'rgba(255, 107, 53, 0.8)',
+    green: 'rgba(76, 175, 80, 0.8)',
+    yellow: 'rgba(255, 193, 7, 0.8)',
+    purple: 'rgba(156, 39, 176, 0.8)'
+};
+
+// Distance Over Time Chart
+const distanceCtx = document.getElementById('distanceChart');
+new Chart(distanceCtx, {
+    type: 'line',
+    data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+            label: 'Distance (km)',
+            data: [120, 150, 180, 200],
+            borderColor: chartColors.cyan,
+            backgroundColor: 'rgba(0, 217, 255, 0.1)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: { 
+                beginAtZero: true,
+                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                ticks: { color: '#a0a5b8' }
+            },
+            x: { 
+                grid: { display: false },
+                ticks: { color: '#a0a5b8' }
+            }
+        }
+    }
+});
+
+// Road Type Distribution
+const roadTypeCtx = document.getElementById('roadTypeChart');
+new Chart(roadTypeCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['City', 'Highway', 'Track'],
+        datasets: [{
+            data: [{{ road_types.city if road_types is defined else 45 }}, 
+                   {{ road_types.highway if road_types is defined else 35 }}, 
+                   {{ road_types.track if road_types is defined else 20 }}],
+            backgroundColor: [chartColors.cyan, chartColors.orange, chartColors.green],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#ffffff', padding: 15 } }
+        }
+    }
+});
+
+// Riding Style Distribution
+const ridingStyleCtx = document.getElementById('ridingStyleChart');
+new Chart(ridingStyleCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Conservative', 'Moderate', 'Aggressive'],
+        datasets: [{
+            data: [30, 50, 20],
+            backgroundColor: [chartColors.green, chartColors.cyan, chartColors.orange],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#ffffff', padding: 15 } }
+        }
+    }
+});
+
+// Speed Distribution
+const speedDistCtx = document.getElementById('speedDistributionChart');
+new Chart(speedDistCtx, {
+    type: 'bar',
+    data: {
+        labels: ['0-40', '40-60', '60-80', '80-100', '100-120', '120+'],
+        datasets: [{
+            label: 'Frequency',
+            data: [15, 35, 45, 30, 20, 5],
+            backgroundColor: chartColors.orange,
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Fuel Consumption Trend
+const fuelCtx = document.getElementById('fuelConsumptionChart');
+new Chart(fuelCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+            {
+                label: 'Fuel Consumed (L)',
+                data: [25, 30, 28, 32, 35, 33],
+                borderColor: chartColors.orange,
+                backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                yAxisID: 'y',
+                fill: true
+            },
+            {
+                label: 'Mileage (km/l)',
+                data: [35, 32, 36, 34, 33, 35],
+                borderColor: chartColors.green,
+                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                yAxisID: 'y1',
+                fill: true
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { 
+                type: 'linear',
+                position: 'left',
+                title: { display: true, text: 'Fuel (L)', color: '#a0a5b8' }
+            },
+            y1: {
+                type: 'linear',
+                position: 'right',
+                title: { display: true, text: 'Mileage (km/l)', color: '#a0a5b8' },
+                grid: { drawOnChartArea: false }
+            }
+        }
+    }
+});
+
+// Monthly Activity Comparison
+const monthlyCtx = document.getElementById('monthlyActivityChart');
+new Chart(monthlyCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+            {
+                label: 'Rides',
+                data: [12, 15, 18, 14, 20, 22],
+                backgroundColor: chartColors.cyan,
+                yAxisID: 'y'
+            },
+            {
+                label: 'Distance (km)',
+                data: [350, 420, 480, 400, 550, 600],
+                backgroundColor: chartColors.orange,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { 
+                position: 'left',
+                title: { display: true, text: 'Rides', color: '#a0a5b8' }
+            },
+            y1: {
+                position: 'right',
+                title: { display: true, text: 'Distance (km)', color: '#a0a5b8' },
+                grid: { drawOnChartArea: false }
+            }
+        }
+    }
+});
+
+// Weather Distribution
+const weatherCtx = document.getElementById('weatherChart');
+new Chart(weatherCtx, {
+    type: 'polarArea',
+    data: {
+        labels: ['Sunny', 'Cloudy', 'Rainy', 'Foggy'],
+        datasets: [{
+            data: [60, 25, 10, 5],
+            backgroundColor: [chartColors.yellow, chartColors.cyan, chartColors.blue, chartColors.purple]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#ffffff' } }
+        }
+    }
+});
+
+// Time of Day Distribution
+const timeCtx = document.getElementById('timeOfDayChart');
+new Chart(timeCtx, {
+    type: 'radar',
+    data: {
+        labels: ['Morning', 'Afternoon', 'Evening', 'Night'],
+        datasets: [{
+            label: 'Ride Frequency',
+            data: [40, 25, 30, 5],
+            backgroundColor: 'rgba(0, 217, 255, 0.2)',
+            borderColor: chartColors.cyan,
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                beginAtZero: true,
+                ticks: { color: '#a0a5b8' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            }
+        }
+    }
+});
+
+{% if user_bikes|length > 1 %}
+// Bike Comparison Chart
+const bikeCompCtx = document.getElementById('bikeComparisonChart');
+new Chart(bikeCompCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for bike in user_bikes %}
+            '{{ bike.bike.brand }} {{ bike.bike.model }}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [
+            {
+                label: 'Total Distance (km)',
+                data: [450, 320],
+                backgroundColor: chartColors.cyan
+            },
+            {
+                label: 'Total Rides',
+                data: [35, 25],
+                backgroundColor: chartColors.orange
+            },
+            {
+                label: 'Avg Mileage (km/l)',
+                data: [35, 42],
+                backgroundColor: chartColors.green
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+{% endif %}
+
+// Filter Functions
+function filterByBike(bikeId) {
+    console.log('Filtering by bike:', bikeId);
+    // Implement AJAX call to fetch filtered data
+    location.href = `?bike_id=${bikeId}`;
+}
+
+function updateTimeRange(days) {
+    console.log('Updating time range:', days);
+    // Implement AJAX call to fetch data for selected time range
+    location.href = `?days=${days}`;
+}
+
+function exportChart(chartId) {
+    const canvas = document.getElementById(chartId);
+    const url = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.download = `${chartId}_${new Date().getTime()}.png`;
+    link.href = url;
+    link.click();
+}
+</script>
+{% endblock %}

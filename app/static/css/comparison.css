@@ -1,0 +1,579 @@
+/* ============================================
+   BIKE COMPARISON PAGE STYLES
+   Modern Glass Morphism Design
+   ============================================ */
+
+/* Comparison Container */
+.comparison-container {
+    max-width: 1400px;
+    margin: 6rem auto 2rem;
+    padding: 0 5%;
+}
+
+.comparison-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.comparison-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: var(--gradient-secondary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.comparison-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-gray);
+    font-weight: 400;
+}
+
+/* Bike Selection Grid */
+.bike-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* ============================================
+   BIKE CARD WITH DISCO LIGHT BORDERS
+   ============================================ */
+
+/* Override glass-card defaults for bike cards */
+.glass-card.bike-card {
+    position: relative;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 3px solid #ff0080 !important;
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    cursor: pointer;
+    overflow: hidden;
+    display: block;
+    transition: transform 0.3s ease !important;
+}
+
+/* Professional Disco Light - Same animation for ALL cards */
+.glass-card.bike-card {
+    animation: professionalDiscoLight 3s ease-in-out infinite !important;
+}
+
+.glass-card.bike-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent 70%);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+}
+
+.glass-card.bike-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    border-color: inherit !important;
+    box-shadow: inherit !important;
+}
+
+.glass-card.bike-card:hover::before {
+    opacity: 1;
+}
+
+/* Selected State for Bike Card */
+.bike-checkbox:checked + .bike-card-content {
+    position: relative;
+}
+
+.bike-checkbox:checked ~ .bike-card-content::after,
+.glass-card.bike-card:has(.bike-checkbox:checked)::after {
+    content: '✓';
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.8);
+    animation: checkmarkPop 0.3s ease-out;
+    z-index: 10;
+}
+
+.bike-card-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================
+   OLD BIKE SELECT CARD (Keep for compatibility)
+   ============================================ */
+
+/* Bike Selection Card */
+.bike-select-card {
+    position: relative;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 3px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    overflow: hidden;
+}
+
+/* Disco Light Effects for Each Card */
+.bike-select-card:nth-child(1) {
+    animation: discoLight1 2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(2) {
+    animation: discoLight2 2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(3) {
+    animation: discoLight3 2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(4) {
+    animation: discoLight4 2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(5) {
+    animation: discoLight5 2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(6) {
+    animation: discoLight6 2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(7) {
+    animation: discoLight7 2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(8) {
+    animation: discoLight8 2s ease-in-out infinite;
+}
+
+/* Continue the pattern for more cards */
+.bike-select-card:nth-child(9) {
+    animation: discoLight1 2.2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(10) {
+    animation: discoLight2 2.2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(11) {
+    animation: discoLight3 2.2s ease-in-out infinite;
+}
+
+.bike-select-card:nth-child(12) {
+    animation: discoLight4 2.2s ease-in-out infinite;
+}
+
+.bike-select-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent 70%);
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+}
+
+.bike-select-card:hover {
+    transform: translateY(-8px) scale(1.02);
+}
+
+.bike-select-card:hover::before {
+    opacity: 1;
+}
+
+/* Selected State */
+.bike-select-card.selected {
+    background: rgba(59, 130, 246, 0.15);
+    transform: scale(1.05);
+}
+
+.bike-select-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 35px;
+    height: 35px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+    animation: checkmarkPop 0.3s ease-out;
+}
+
+@keyframes checkmarkPop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Bike Image Placeholder */
+.bike-image-placeholder {
+    width: 100%;
+    height: 180px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    margin-bottom: 1.2rem;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.bike-image-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.bike-select-card:hover .bike-image-placeholder::before {
+    left: 100%;
+}
+
+.bike-select-card:hover .bike-image-placeholder {
+    background: rgba(59, 130, 246, 0.2);
+    transform: scale(1.02);
+}
+
+.bike-select-card.selected .bike-image-placeholder {
+    background: rgba(59, 130, 246, 0.25);
+}
+
+/* Bike Info */
+.bike-info {
+    position: relative;
+    z-index: 1;
+}
+
+.bike-info h3 {
+    color: var(--text-light);
+    margin-bottom: 0.7rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.bike-brand {
+    color: var(--accent-cyan);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.3rem;
+}
+
+.bike-year {
+    color: var(--text-gray);
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bike-specs-mini {
+    display: flex;
+    gap: 1.2rem;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.bike-specs-mini span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.bike-price {
+    color: var(--text-light);
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-top: 1rem;
+    background: var(--gradient-secondary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Compare Button */
+.compare-button-container {
+    position: sticky;
+    bottom: 2rem;
+    text-align: center;
+    margin-top: 3rem;
+    z-index: 100;
+}
+
+.compare-submit-btn {
+    padding: 1.2rem 3.5rem;
+    font-size: 1.2rem;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    box-shadow: var(--shadow-glow-blue);
+    transition: all var(--transition-normal);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.compare-submit-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 50px rgba(59, 130, 246, 0.6);
+}
+
+.compare-submit-btn:active {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.compare-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Comparison Results */
+.comparison-results {
+    margin-top: 4rem;
+}
+
+.comparison-table-wrapper {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.comparison-table thead th {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--accent-cyan);
+    padding: 1.2rem 1.5rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--accent-blue);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.comparison-table thead th:first-child {
+    border-top-left-radius: var(--radius-md);
+}
+
+.comparison-table thead th:last-child {
+    border-top-right-radius: var(--radius-md);
+}
+
+.comparison-table tbody tr {
+    transition: all var(--transition-fast);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.comparison-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.comparison-table tbody td {
+    padding: 1.2rem 1.5rem;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.comparison-table tbody td:first-child {
+    font-weight: 600;
+    color: var(--text-gray);
+}
+
+.comparison-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: var(--radius-md);
+}
+
+.comparison-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: var(--radius-md);
+}
+
+/* Comparison Score Cards */
+.score-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+}
+
+.score-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    text-align: center;
+    transition: all var(--transition-normal);
+}
+
+.score-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-glow-blue);
+    border-color: var(--accent-blue);
+}
+
+.score-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.score-value {
+    font-size: 3rem;
+    font-weight: 800;
+    background: var(--gradient-secondary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.score-label {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Winner Badge */
+.winner-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient-accent);
+    color: var(--text-light);
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 20px rgba(255, 107, 53, 0.5);
+    animation: winnerPulse 2s ease-in-out infinite;
+}
+
+@keyframes winnerPulse {
+    0%, 100% {
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        transform: translateX(-50%) scale(1.05);
+    }
+}
+
+/* Responsive Comparison */
+@media (max-width: 992px) {
+    .bike-selection-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .comparison-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .comparison-container {
+        margin: 5rem auto 2rem;
+        padding: 0 4%;
+    }
+    
+    .bike-selection-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .comparison-title {
+        font-size: 2rem;
+    }
+    
+    .comparison-subtitle {
+        font-size: 1rem;
+    }
+    
+    .comparison-table-wrapper {
+        padding: 1rem;
+    }
+    
+    .comparison-table {
+        font-size: 0.85rem;
+    }
+    
+    .score-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .compare-submit-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+    }
+}

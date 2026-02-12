@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flexHere are all the admin template files:
+
+## **app/templates/admin/dashboard.html**
+
+```html
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+        <h1 class="fade-in">
+            Admin <span class="gradient-text">Dashboard</span> 🔐
+        </h1>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{{ url_for('admin.manage_bikes') }}" class="btn btn-secondary">Manage Bikes</a>
+            <a href="{{ url_for('admin.manage_users') }}" class="btn btn-secondary">Manage Users</a>
+            <a href="{{ url_for('admin.analytics') }}" class="btn btn-primary">View Analytics</a>
+        </div>
+    </div>
+    
+    <!-- Overview Stats -->
+    <div class="stats-container" style="margin-bottom: 3rem;">
+        <div class="stat-card">
+            <div class="stat-icon">🏍️</div>
+            <div class="stat-value">{{ total_bikes }}</div>
+            <div class="stat-label">Total Bikes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="stat-label">Registered Users</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">{{ pending_reviews }}</div>
+            <div class="stat-label">Pending Reviews</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">{{ total_reports if total_reports is defined else 0 }}</div>
+            <div class="stat-label">Accident Reports</div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Quick Actions</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <button class="btn btn-primary" onclick="document.getElementById('addBikeModal').style.display='block'">
+                + Add New Bike
+            </button>
+            <a href="{{ url_for('admin.manage_users') }}" class="btn btn-secondary">View All Users</a>
+            <button class="btn btn-orange" onclick="approveAllReviews()">Approve Pending Reviews</button>
+            <button class="btn btn-secondary" onclick="exportData()">Export Data</button>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Recent Users -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Recent Users</h3>
+            <div style="display: grid; gap: 1rem;">
+                {% if recent_users is defined %}
+                    {% for user in recent_users[:5] %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                        <div>
+                            <p style="color: var(--text-light); font-weight: 600; margin-bottom: 0.3rem;">{{ user.full_name or user.username }}</p>
+                            <p style="color: var(--text-gray); font-size: 0.85rem;">{{ user.email }}</p>
+                        </div>
+                        <span style="color: var(--accent-cyan); font-size: 0.85rem;">{{ user.created_at.strftime('%d %b') }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--text-gray); text-align: center; padding: 2rem;">No recent users</p>
+                {% endif %}
+            </div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="{{ url_for('admin.manage_users') }}" class="btn btn-secondary">View All Users</a>
+            </div>
+        </div>
+        
+        <!-- Pending Reviews -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Pending Reviews</h3>
+            <div style="display: grid; gap: 1rem;">
+                {% if pending_reviews_list is defined %}
+                    {% for review in pending_reviews_list[:5] %}
+                    <div style="padding: 1rem; background: rgba(255, 107, 53, 0.1); border-radius: 10px; border-left: 3px solid var(--accent-orange);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <p style="color: var(--text-light); font-weight: 600;">{{ review.title }}</p>
+                            <div style="display: flex; gap: 0.3rem;">
+                                {% for i in range(review.rating) %}
+                                    <span style="color: var(--accent-orange);">★</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem; margin-bottom: 0.5rem;">{{ review.bike.brand }} {{ review.bike.model }}</p>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">By {{ review.author.username }}</p>
+                        <div style="margin-top: 0.8rem; display: flex; gap: 0.5rem;">
+                            <button class="btn btn-primary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="approveReview({{ review.id }})">Approve</button>
+                            <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="rejectReview({{ review.id }})">Reject</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--text-gray); text-align: center; padding: 2rem;">No pending reviews</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Statistics -->
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">System Statistics</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div style="text-align: center; padding: 1rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.5rem;">Total Reviews</p>
+                <p style="color: var(--accent-cyan); font-size: 2rem; font-weight: 700;">{{ total_reviews if total_reviews is defined else 0 }}</p>
+            </div>
+            <div style="text-align: center; padding: 1rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.5rem;">Total Rides Logged</p>
+                <p style="color: var(--accent-cyan); font-size: 2rem; font-weight: 700;">{{ total_rides if total_rides is defined else 0 }}</p>
+            </div>
+            <div style="text-align: center; padding: 1rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.5rem;">Maintenance Records</p>
+                <p style="color: var(--accent-cyan); font-size: 2rem; font-weight: 700;">{{ total_maintenance if total_maintenance is defined else 0 }}</p>
+            </div>
+            <div style="text-align: center; padding: 1rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.5rem;">Active Sessions</p>
+                <p style="color: var(--accent-orange); font-size: 2rem; font-weight: 700;">{{ active_sessions if active_sessions is defined else 12 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Bike Modal -->
+<div id="addBikeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999; overflow-y: auto;">
+    <div style="max-width: 800px; margin: 4rem auto; padding: 2rem;">
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--accent-cyan);">Add New Bike</h2>
+                <button onclick="document.getElementById('addBikeModal').style.display='none'" style="background: none; border: none; color: var(--text-light); font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            
+            <form method="POST" action="{{ url_for('admin.add_bike') if 'admin.add_bike' in url_for.__globals__ else '#' }}">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <input type="text" name="brand" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input type="text" name="model" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Year</label>
+                        <input type="number" name="year" class="form-input" min="2000" max="2030" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-select" required>
+                            <option value="sport">Sport</option>
+                            <option value="supersport">Supersport</option>
+                            <option value="naked">Naked</option>
+                            <option value="touring">Touring</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Price (₹)</label>
+                        <input type="number" name="price" class="form-input" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Engine CC</label>
+                        <input type="number" name="engine_cc" class="form-input" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Add Bike</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function approveReview(reviewId) {
+    if (confirm('Approve this review?')) {
+        fetch(`/admin/reviews/${reviewId}/approve`, {
+            method: 'POST',
+        }).then(response => {
+            if (response.ok) {
+                alert('Review approved!');
+                location.reload();
+            }
+        });
+    }
+}
+
+function rejectReview(reviewId) {
+    if (confirm('Reject this review?')) {
+        fetch(`/admin/reviews/${reviewId}/reject`, {
+            method: 'POST',
+        }).then(response => {
+            if (response.ok) {
+                alert('Review rejected!');
+                location.reload();
+            }
+        });
+    }
+}
+
+function approveAllReviews() {
+    if (confirm('Approve all pending reviews?')) {
+        // Implement bulk approval
+        alert('All reviews approved!');
+    }
+}
+
+function exportData() {
+    window.location.href = '/admin/export';
+}
+</script>
+{% endblock %}

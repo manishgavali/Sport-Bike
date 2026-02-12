@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Add Ride Log - {{ user_bike.bike.brand }} {{ user_bike.bike.model }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4><i class="fas fa-route"></i> Add Ride Log - {{ user_bike.bike.brand }} {{ user_bike.bike.model }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ride Date</label>
+                                <input type="date" name="ride_date" class="form-control" value="{{ today }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Distance (KM) *</label>
+                                <input type="number" name="distance" class="form-control" step="0.1" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Duration (Minutes)</label>
+                                <input type="number" name="duration" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Avg Speed (km/h)</label>
+                                <input type="number" name="avg_speed" class="form-control" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Max Speed (km/h)</label>
+                                <input type="number" name="max_speed" class="form-control" step="0.1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fuel Consumed (Liters)</label>
+                                <input type="number" name="fuel_consumed" class="form-control" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Road Type</label>
+                                <select name="road_type" class="form-control">
+                                    <option value="city">City</option>
+                                    <option value="highway">Highway</option>
+                                    <option value="track">Track</option>
+                                    <option value="mixed">Mixed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Weather</label>
+                                <select name="weather_condition" class="form-control">
+                                    <option value="sunny">Sunny</option>
+                                    <option value="cloudy">Cloudy</option>
+                                    <option value="rainy">Rainy</option>
+                                    <option value="foggy">Foggy</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Riding Style</label>
+                                <select name="riding_style" class="form-control">
+                                    <option value="smooth">Smooth</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="aggressive">Aggressive</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Start Location</label>
+                                <input type="text" name="start_location" class="form-control" placeholder="E.g., Home, Office">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">End Location</label>
+                                <input type="text" name="end_location" class="form-control" placeholder="E.g., Mall, Friend's place">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea name="notes" class="form-control" rows="3" placeholder="Any observations, issues, or memorable moments..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Ride Log
+                            </button>
+                            <a href="{{ url_for('dashboard.bike_details', bike_id=user_bike.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Ownership Cost Calculator{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem; text-align: center;">
+        Ownership Cost <span class="gradient-text">Calculator</span> 💰
+    </h1>
+    <p style="color: var(--text-gray); margin-bottom: 3rem; text-align: center;">
+        Calculate total cost of owning a sport bike
+    </p>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Input Form -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Enter Details</h3>
+            <form id="costCalculatorForm">
+                <div class="form-group">
+                    <label class="form-label">Select Bike</label>
+                    <select name="bike_id" id="bikeSelect" class="form-select bike-list-select" size="8" required>
+                        <option value="">Choose a bike...</option>
+                        {% for bike in bikes %}
+                        <option value="{{ bike.id }}" data-price="{{ bike.price }}" data-cc="{{ bike.specs.engine_cc if bike.specs else 0 }}">
+                            {{ bike.brand }} {{ bike.model }} - ₹{{ '{:,.0f}'.format(bike.price) if bike.price else 'N/A' }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Yearly KM Expected</label>
+                    <input type="number" name="yearly_km" id="yearlyKm" class="form-input" value="10000" min="1000" max="50000" step="1000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Fuel Price (₹/L)</label>
+                    <input type="number" name="fuel_price" id="fuelPrice" class="form-input" value="105" min="50" max="200" step="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Insurance Type</label>
+                    <select name="insurance_type" id="insuranceType" class="form-select" required>
+                        <option value="comprehensive">Comprehensive</option>
+                        <option value="third_party">Third Party</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Calculate Cost</button>
+            </form>
+        </div>
+        
+        <!-- Results Display -->
+        <div class="glass-card" id="resultsContainer" style="display: none;">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Cost Breakdown</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('costCalculatorForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const response = await fetch('{{ url_for("calculator.calculate") }}', {
+        method: 'POST',
+        body: formData
+    });
+    
+    const results = await response.json();
+    displayResults(results);
+});
+
+function displayResults(results) {
+    const container = document.getElementById('resultsContainer');
+    const content = document.getElementById('resultsContent');
+    
+    content.innerHTML = `
+        <div style="margin-bottom: 2rem;">
+            <h4 style="color: var(--accent-orange); margin-bottom: 1rem;">Annual Breakdown</h4>
+            <div style="display: grid; gap: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; padding: 0.8rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Fuel Cost</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">₹${results.breakdown.fuel_cost.toLocaleString()}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.8rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Insurance</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">₹${results.breakdown.insurance_cost.toLocaleString()}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.8rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Maintenance</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">₹${results.breakdown.maintenance_cost.toLocaleString()}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.8rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Depreciation</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">₹${results.breakdown.depreciation.toLocaleString()}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.8rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Registration</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">₹${results.breakdown.registration_annual.toLocaleString()}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.8rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Accessories</span>
+                    <span style="color: var(--accent-cyan); font-weight: 600;">₹${results.breakdown.accessories.toLocaleString()}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 1.5rem; background: var(--gradient-accent); border-radius: 10px; margin-bottom: 1.5rem;">
+            <h4 style="color: white; margin-bottom: 0.5rem;">Total Annual Cost</h4>
+            <p style="color: white; font-size: 2rem; font-weight: 700;">₹${results.totals.annual_cost.toLocaleString()}</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="text-align: center; padding: 1rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <p style="color: var(--text-gray); font-size: 0.85rem;">Monthly</p>
+                <p style="color: var(--text-light); font-size: 1.3rem; font-weight: 600;">₹${results.totals.monthly_cost.toLocaleString()}</p>
+            </div>
+            <div style="text-align: center; padding: 1rem; background: rgba(0, 217, 255, 0.1); border-radius: 10px;">
+                <p style="color: var(--text-gray); font-size: 0.85rem;">Per KM</p>
+                <p style="color: var(--text-light); font-size: 1.3rem; font-weight: 600;">₹${results.totals.cost_per_km.toFixed(2)}</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 107, 53, 0.1); border-radius: 10px; border-left: 4px solid var(--accent-orange);">
+            <p style="color: var(--text-gray); font-size: 0.85rem; margin-bottom: 0.3rem;">5 Year Cost</p>
+            <p style="color: var(--accent-orange); font-size: 1.5rem; font-weight: 600;">₹${results.comparison['5_year_cost'].toLocaleString()}</p>
+        </div>
+    `;
+    
+    container.style.display = 'block';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 class="fade-in">Manage <span class="gradient-text">Users</span> 👥</h1>
+        <a href="{{ url_for('admin.index') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem;">
+            <input type="text" id="searchInput" class="form-input" placeholder="Search users..." onkeyup="filterUsers()">
+            <select class="form-select" id="filterRole" onchange="filterUsers()">
+                <option value="">All Roles</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+            <select class="form-select" id="filterStatus" onchange="filterUsers()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Users Stats -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div class="glass-card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2rem; color: var(--accent-cyan); font-weight: 700;">{{ users|length }}</div>
+            <div style="color: var(--text-gray); margin-top: 0.5rem;">Total Users</div>
+        </div>
+        <div class="glass-card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2rem; color: #4caf50; font-weight: 700;">
+                {{ users|selectattr('is_active')|list|length }}
+            </div>
+            <div style="color: var(--text-gray); margin-top: 0.5rem;">Active Users</div>
+        </div>
+        <div class="glass-card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2rem; color: var(--accent-orange); font-weight: 700;">
+                {{ users|selectattr('role', 'equalto', 'admin')|list|length }}
+            </div>
+            <div style="color: var(--text-gray); margin-top: 0.5rem;">Admins</div>
+        </div>
+        <div class="glass-card" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2rem; color: var(--accent-cyan); font-weight: 700;">
+                {{ new_users_this_month if new_users_this_month is defined else 0 }}
+            </div>
+            <div style="color: var(--text-gray); margin-top: 0.5rem;">New This Month</div>
+        </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="glass-card">
+        <div class="table-container">
+            <table class="data-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Experience</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr data-role="{{ user.role }}" data-status="{{ 'active' if user.is_active else 'inactive' }}">
+                        <td>{{ user.id }}</td>
+                        <td style="font-weight: 600; color: var(--accent-cyan);">{{ user.username }}</td>
+                        <td>{{ user.full_name or 'N/A' }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone or 'N/A' }}</td>
+                        <td>
+                            <span style="background: rgba(0, 217, 255, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; text-transform: capitalize;">
+                                {{ user.riding_experience or 'N/A' }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span style="background: var(--accent-orange); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem; color: white;">
+                                    Admin
+                                </span>
+                            {% else %}
+                                <span style="background: rgba(0, 217, 255, 0.2); padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.85rem;">
+                                    User
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                                <span style="color: #4caf50;">● Active</span>
+                            {% else %}
+                                <span style="color: var(--accent-orange);">● Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%d %b, %Y') }}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="viewUser({{ user.id }})">View</button>
+                                <button class="btn btn-primary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="editUser({{ user.id }})">Edit</button>
+                                <button class="btn btn-orange" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="toggleUserStatus({{ user.id }}, {{ user.is_active|lower }})">
+                                    {{ 'Suspend' if user.is_active else 'Activate' }}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterUsers() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const roleFilter = document.getElementById('filterRole').value;
+    const statusFilter = document.getElementById('filterStatus').value;
+    
+    const rows = document.querySelectorAll('#usersTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const role = row.dataset.role;
+        const status = row.dataset.status;
+        
+        const matchesSearch = text.includes(searchInput);
+        const matchesRole = !roleFilter || role === roleFilter;
+        const matchesStatus = statusFilter === 'all' || status === statusFilter;
+        
+        if (matchesSearch && matchesRole && matchesStatus) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function viewUser(userId) {
+    window.location.href = `/admin/users/${userId}`;
+}
+
+function editUser(userId) {
+    window.location.href = `/admin/users/${userId}/edit`;
+}
+
+function toggleUserStatus(userId, currentStatus) {
+    const action = currentStatus ? 'suspend' : 'activate';
+    if (confirm(`Are you sure you want to ${action} this user?`)) {
+        fetch(`/admin/users/${userId}/toggle-status`, {
+            method: 'POST',
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

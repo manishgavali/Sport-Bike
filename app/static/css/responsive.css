@@ -1,0 +1,513 @@
+/* ============================================
+   RESPONSIVE DESIGN
+   Mobile-First Approach
+   ============================================ */
+
+/* Extra Large Screens (1400px+) */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1400px;
+    }
+    
+    .hero-title {
+        font-size: 5rem;
+    }
+}
+
+/* Large Screens (1200px - 1399px) */
+@media (max-width: 1399px) {
+    .container {
+        max-width: 1200px;
+    }
+    
+    .hero-title {
+        font-size: 4rem;
+    }
+}
+
+/* Medium-Large Screens (992px - 1199px) */
+@media (max-width: 1199px) {
+    .container {
+        max-width: 992px;
+        padding: 0 4%;
+    }
+    
+    .hero {
+        padding: 7rem 4% 2rem;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+    }
+    
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 3rem 4%;
+    }
+    
+    .form-container {
+        max-width: 500px;
+    }
+}
+
+/* Tablet Screens (768px - 991px) */
+@media (max-width: 991px) {
+    /* Navigation */
+    .navbar {
+        padding: 1rem 4%;
+    }
+    
+    .nav-links {
+        gap: 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .logo {
+        font-size: 1.6rem;
+    }
+    
+    /* Hero Section */
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 6rem 4% 2rem;
+    }
+    
+    .hero-content {
+        max-width: 100%;
+    }
+    
+    .hero-title {
+        font-size: 3rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .hero-image {
+        margin-top: 3rem;
+        max-width: 500px;
+    }
+    
+    /* Cards & Grids */
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .bike-selection-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Section Title */
+    .section-title {
+        font-size: 2.2rem;
+    }
+    
+    /* Tables */
+    .data-table {
+        font-size: 0.9rem;
+    }
+    
+    .data-table thead th,
+    .data-table tbody td {
+        padding: 0.8rem 1rem;
+    }
+}
+
+/* Mobile Landscape & Small Tablet (576px - 767px) */
+@media (max-width: 767px) {
+    /* Navigation */
+    .navbar {
+        padding: 1rem 3%;
+        flex-wrap: wrap;
+    }
+    
+    .logo {
+        font-size: 1.4rem;
+    }
+    
+    .nav-links {
+        display: none; /* Hide main nav links on mobile */
+        /* Implement mobile menu with hamburger if needed */
+    }
+    
+    .nav-buttons {
+        gap: 0.7rem;
+    }
+    
+    .btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Hero Section */
+    .hero {
+        min-height: 90vh;
+        padding: 5rem 3% 2rem;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+        line-height: 1.2;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .hero-image {
+        margin-top: 2rem;
+    }
+    
+    /* Stats & Cards */
+    .stats-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 2.5rem 3%;
+    }
+    
+    .stat-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+    }
+    
+    /* Dashboard */
+    .dashboard-container {
+        margin: 5rem auto 2rem;
+        padding: 0 3%;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .dashboard-card {
+        padding: 1.5rem;
+    }
+    
+    /* Comparison */
+    .comparison-container {
+        margin: 5rem auto 2rem;
+        padding: 0 3%;
+    }
+    
+    .bike-selection-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-title {
+        font-size: 2rem;
+    }
+    
+    .comparison-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    /* Forms */
+    .form-container {
+        margin: 5rem 1rem 2rem;
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-title {
+        font-size: 1.8rem;
+    }
+    
+    .form-control {
+        padding: 0.8rem 1rem;
+    }
+    
+    /* Sections */
+    .section {
+        padding: 3rem 3%;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* Glass Cards */
+    .glass-card {
+        padding: 1.5rem;
+    }
+    
+    /* Tables */
+    .table-container {
+        padding: 1rem;
+    }
+    
+    .data-table {
+        font-size: 0.85rem;
+    }
+    
+    .data-table thead th,
+    .data-table tbody td {
+        padding: 0.7rem 0.8rem;
+    }
+    
+    /* Flash Messages */
+    .flash-messages {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        top: 80px;
+    }
+    
+    .flash-messages > div {
+        padding: 1rem 1.3rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Comparison Results */
+    .comparison-table-wrapper {
+        padding: 1rem;
+        overflow-x: auto;
+    }
+    
+    .score-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile Portrait (0 - 575px) */
+@media (max-width: 575px) {
+    /* Navigation */
+    .navbar {
+        padding: 0.8rem 4%;
+    }
+    
+    .logo {
+        font-size: 1.3rem;
+    }
+    
+    .nav-buttons .btn {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Hero Section */
+    .hero {
+        min-height: 80vh;
+        padding: 4rem 4% 2rem;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+        letter-spacing: -0.5px;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+    
+    .hero-buttons .btn {
+        width: 100%;
+        padding: 0.8rem 2rem;
+    }
+    
+    /* Stats */
+    .stat-card {
+        padding: 1.5rem 1rem;
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+    }
+    
+    /* Dashboard */
+    .dashboard-container {
+        padding: 0 4%;
+    }
+    
+    .dashboard-card {
+        padding: 1.2rem;
+    }
+    
+    .dashboard-card-title {
+        font-size: 1.1rem;
+    }
+    
+    /* Forms */
+    .form-container {
+        margin: 4rem 0.5rem 2rem;
+        padding: 1.5rem 1rem;
+    }
+    
+    .form-title {
+        font-size: 1.5rem;
+    }
+    
+    .form-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    /* Sections */
+    .section {
+        padding: 2.5rem 4%;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    /* Glass Cards */
+    .glass-card {
+        padding: 1.2rem;
+    }
+    
+    .card-title {
+        font-size: 1.2rem;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.6rem 1.3rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Badges */
+    .badge {
+        padding: 0.3rem 0.8rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Comparison */
+    .comparison-title {
+        font-size: 1.8rem;
+    }
+    
+    .comparison-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .bike-select-card {
+        padding: 1.2rem;
+    }
+    
+    .bike-image-placeholder {
+        height: 150px;
+        font-size: 2.5rem;
+    }
+    
+    .bike-info h3 {
+        font-size: 1.1rem;
+    }
+    
+    .bike-price {
+        font-size: 1.2rem;
+    }
+    
+    .compare-submit-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+    
+    /* Tables */
+    .data-table {
+        font-size: 0.8rem;
+    }
+    
+    .data-table thead th,
+    .data-table tbody td {
+        padding: 0.6rem 0.5rem;
+    }
+    
+    /* Charts */
+    .chart-container {
+        height: 250px;
+        padding: 1rem;
+    }
+    
+    /* Alerts */
+    .alert-box {
+        padding: 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .alert-icon {
+        font-size: 1.2rem;
+    }
+}
+
+/* Extra Small Devices (< 400px) */
+@media (max-width: 399px) {
+    .hero-title {
+        font-size: 1.7rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .comparison-title {
+        font-size: 1.6rem;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .navbar,
+    .nav-buttons,
+    .flash-messages,
+    .btn,
+    .hero-buttons {
+        display: none;
+    }
+    
+    .hero {
+        min-height: auto;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .glass-card,
+    .dashboard-card,
+    .stat-card {
+        border: 1px solid #ccc;
+        background: white;
+    }
+}

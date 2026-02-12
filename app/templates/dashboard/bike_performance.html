@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Bike Performance - {{ user_bike.bike.brand }} {{ user_bike.bike.model }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h3><i class="fas fa-tachometer-alt"></i> {{ user_bike.bike.brand }} {{ user_bike.bike.model }} - Performance Dashboard</h3>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-gauge-high fa-3x text-primary mb-2"></i>
+                    <h5>Average Speed</h5>
+                    <h2 class="text-primary">{{ performance.avg_speed }} <small>km/h</small></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-gas-pump fa-3x text-success mb-2"></i>
+                    <h5>Fuel Efficiency</h5>
+                    <h2 class="text-success">{{ performance.avg_mileage }} <small>km/l</small></h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    {% if performance.heat_level == 'Normal' %}
+                        <i class="fas fa-temperature-half fa-3x text-info mb-2"></i>
+                        <h5>Heat Level</h5>
+                        <h2 class="text-info">{{ performance.heat_level }}</h2>
+                    {% elif performance.heat_level == 'Medium' %}
+                        <i class="fas fa-temperature-three-quarters fa-3x text-warning mb-2"></i>
+                        <h5>Heat Level</h5>
+                        <h2 class="text-warning">{{ performance.heat_level }}</h2>
+                    {% else %}
+                        <i class="fas fa-temperature-full fa-3x text-danger mb-2"></i>
+                        <h5>Heat Level</h5>
+                        <h2 class="text-danger">{{ performance.heat_level }}</h2>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    {% if performance.health_score >= 80 %}
+                        <i class="fas fa-heart fa-3x text-success mb-2"></i>
+                        <h5>Health Score</h5>
+                        <h2 class="text-success">{{ performance.health_score }}/100</h2>
+                    {% elif performance.health_score >= 60 %}
+                        <i class="fas fa-heart fa-3x text-warning mb-2"></i>
+                        <h5>Health Score</h5>
+                        <h2 class="text-warning">{{ performance.health_score }}/100</h2>
+                    {% else %}
+                        <i class="fas fa-heart-crack fa-3x text-danger mb-2"></i>
+                        <h5>Health Score</h5>
+                        <h2 class="text-danger">{{ performance.health_score }}/100</h2>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6><i class="fas fa-road"></i> Total Distance</h6>
+                    <h3>{{ performance.total_distance }} km</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6><i class="fas fa-gas-pump"></i> Total Fuel Consumed</h6>
+                    <h3>{{ performance.total_fuel }} liters</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6><i class="fas fa-list"></i> Total Rides</h6>
+                    <h3>{{ performance.total_rides }} rides</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Ride Logs -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-history"></i> Recent Rides</h5>
+        </div>
+        <div class="card-body">
+            {% if ride_logs %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Distance</th>
+                                <th>Avg Speed</th>
+                                <th>Fuel Used</th>
+                                <th>Mileage</th>
+                                <th>Road Type</th>
+                                <th>Style</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in ride_logs %}
+                            <tr>
+                                <td>{{ log.ride_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ log.distance }} km</td>
+                                <td>{{ log.avg_speed }} km/h</td>
+                                <td>{{ log.fuel_consumed or 'N/A' }} L</td>
+                                <td>
+                                    {% if log.fuel_consumed and log.fuel_consumed > 0 %}
+                                        {{ "%.2f"|format(log.distance / log.fuel_consumed) }} km/l
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td><span class="badge bg-info">{{ log.road_type or 'N/A' }}</span></td>
+                                <td>
+                                    {% if log.riding_style == 'aggressive' %}
+                                        <span class="badge bg-danger">{{ log.riding_style }}</span>
+                                    {% elif log.riding_style == 'moderate' %}
+                                        <span class="badge bg-warning">{{ log.riding_style }}</span>
+                                    {% else %}
+                                        <span class="badge bg-success">{{ log.riding_style }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No ride logs yet. Start tracking your rides to see performance data!
+                </div>
+            {% endif %}
+            
+            <div class="mt-3">
+                <a href="{{ url_for('dashboard.add_ride_log', bike_id=user_bike.id) }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Ride
+                </a>
+                <a href="{{ url_for('dashboard.bike_details', bike_id=user_bike.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Bike Details
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

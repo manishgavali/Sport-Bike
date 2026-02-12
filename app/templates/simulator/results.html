@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Simulation Results - {{ bike.brand }} {{ bike.model }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem; text-align: center;">
+        Simulation <span class="gradient-text">Results</span> ⚡
+    </h1>
+    <h2 style="color: var(--text-gray); text-align: center; margin-bottom: 3rem;">
+        {{ bike.brand }} {{ bike.model }}
+    </h2>
+    
+    <!-- Performance Metrics -->
+    <div class="stats-container" style="margin-bottom: 3rem;">
+        <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value">{{ results.adjusted_power }}</div>
+            <div class="stat-label">Adjusted Power (HP)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-value">{{ results.adjusted_acceleration }}</div>
+            <div class="stat-label">0-100 km/h (sec)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">💨</div>
+            <div class="stat-value">{{ results.estimated_top_speed }}</div>
+            <div class="stat-label">Est. Top Speed (km/h)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⛽</div>
+            <div class="stat-value">{{ results.fuel_consumption }}</div>
+            <div class="stat-label">Fuel Consumption (L/100km)</div>
+        </div>
+    </div>
+    
+    <!-- Detailed Analysis -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+        <!-- Engine Heat -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">🌡️ Engine Heat Level</h3>
+            <div style="background: rgba(255, 107, 53, 0.1); border-radius: 10px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Heat Level</span>
+                    <span style="color: var(--accent-orange); font-weight: 600;">{{ results.heat_level }}%</span>
+                </div>
+                <div style="width: 100%; height: 20px; background: rgba(0, 0, 0, 0.3); border-radius: 10px; overflow: hidden;">
+                    <div style="width: {{ results.heat_level }}%; height: 100%; background: linear-gradient(90deg, var(--accent-orange), #ff6b35); transition: width 1s ease;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Component Wear -->
+        <div class="glass-card">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">🔧 Predicted Component Wear</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Brake Wear</span>
+                    <span style="color: var(--accent-orange); font-weight: 600;">{{ results.brake_wear }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Tyre Wear</span>
+                    <span style="color: var(--accent-orange); font-weight: 600;">{{ results.tyre_wear }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(0, 217, 255, 0.05); border-radius: 5px;">
+                    <span>Chain Wear</span>
+                    <span style="color: var(--accent-orange); font-weight: 600;">{{ results.chain_wear }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Conditions Summary -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h3 style="color: var(--accent-cyan); margin-bottom: 1rem;">📊 Simulation Conditions</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">Rider Weight</p>
+                <p style="color: var(--text-light); font-size: 1.1rem; font-weight: 600;">{{ results.conditions.rider_weight }} kg</p>
+            </div>
+            <div>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">Total Weight</p>
+                <p style="color: var(--text-light); font-size: 1.1rem; font-weight: 600;">{{ results.conditions.total_weight }} kg</p>
+            </div>
+            <div>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">Road Type</p>
+                <p style="color: var(--text-light); font-size: 1.1rem; font-weight: 600; text-transform: capitalize;">{{ results.conditions.road_type }}</p>
+            </div>
+            <div>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">Weather</p>
+                <p style="color: var(--text-light); font-size: 1.1rem; font-weight: 600; text-transform: capitalize;">{{ results.conditions.weather }}</p>
+            </div>
+            <div>
+                <p style="color: var(--text-gray); font-size: 0.9rem;">Riding Style</p>
+                <p style="color: var(--text-light); font-size: 1.1rem; font-weight: 600; text-transform: capitalize;">{{ results.conditions.riding_style }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <a href="{{ url_for('simulator.index') }}" class="btn btn-secondary">Run Another Simulation</a>
+    </div>
+</div>
+
+<script>
+// Animate progress bars on load
+window.addEventListener('load', function() {
+    const progressBar = document.querySelector('[style*="width: {{ results.heat_level }}%"]');
+    if (progressBar) {
+        progressBar.style.width = '0%';
+        setTimeout(function() {
+            progressBar.style.width = '{{ results.heat_level }}%';
+        }, 300);
+    }
+});
+</script>
+{% endblock %}

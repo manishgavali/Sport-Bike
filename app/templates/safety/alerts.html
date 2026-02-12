@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block title %}Safety Alerts - Smart Sport Bike Ecosystem{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 1rem;">
+        Safety <span class="gradient-text">Alerts</span> 🚨
+    </h1>
+    <p style="color: var(--text-gray); margin-bottom: 3rem;">
+        Real-time safety alerts and notifications for your riding area
+    </p>
+    
+    <!-- Alert Statistics -->
+    <div class="stats-container" style="margin-bottom: 3rem;">
+        <div class="stat-card">
+            <div class="stat-icon">🚨</div>
+            <div class="stat-value">{{ active_alerts if active_alerts is defined else 12 }}</div>
+            <div class="stat-label">Active Alerts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-value">{{ critical_alerts if critical_alerts is defined else 3 }}</div>
+            <div class="stat-label">Critical Alerts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📍</div>
+            <div class="stat-value">{{ alerts_in_area if alerts_in_area is defined else 7 }}</div>
+            <div class="stat-label">In Your Area</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value">{{ alerts_today if alerts_today is defined else 5 }}</div>
+            <div class="stat-label">New Today</div>
+        </div>
+    </div>
+    
+    <!-- Filter Options -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <select class="form-select" id="filterSeverity" onchange="filterAlerts()">
+                <option value="all">All Severities</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+            
+            <select class="form-select" id="filterType" onchange="filterAlerts()">
+                <option value="all">All Types</option>
+                <option value="weather">Weather</option>
+                <option value="road_hazard">Road Hazard</option>
+                <option value="traffic">Traffic</option>
+                <option value="accident">Accident Zone</option>
+                <option value="construction">Construction</option>
+            </select>
+            
+            <select class="form-select" id="filterLocation" onchange="filterAlerts()">
+                <option value="all">All Locations</option>
+                <option value="mumbai">Mumbai</option>
+                <option value="bangalore">Bangalore</option>
+                <option value="delhi">Delhi</option>
+                <option value="pune">Pune</option>
+            </select>
+            
+            <button class="btn btn-primary" onclick="refreshAlerts()">
+                🔄 Refresh Alerts
+            </button>
+        </div>
+    </div>
+    
+    <!-- Alerts List -->
+    <div style="display: grid; gap: 1.5rem;">
+        
+        <!-- Critical Alert -->
+        <div class="alert-card critical" data-severity="critical" data-type="weather">
+            <div style="display: flex; gap: 1.5rem; align-items: start;">
+                <div class="alert-icon critical-icon">🚨</div>
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.8rem;">
+                        <div>
+                            <span class="severity-badge critical">CRITICAL</span>
+                            <span class="alert-type-badge weather">Weather Alert</span>
+                        </div>
+                        <span style="color: var(--text-gray); font-size: 0.85rem;">2 hours ago</span>
+                    </div>
+                    <h3 style="color: var(--text-light); margin-bottom: 0.8rem;">Severe Weather Warning - Mumbai</h3>
+                    <p style="color: var(--text-gray); line-height: 1.6; margin-bottom: 1rem;">
+                        Heavy rainfall with thunderstorms expected in Mumbai and surrounding areas. Wind speeds up to 50 km/h. 
+                        Avoid riding if possible. If riding is necessary, reduce speed significantly and use extreme caution.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="color: var(--accent-orange); font-size: 0.9rem;">📍 Mumbai, Thane, Navi Mumbai</span>
+                        <span style="color: var(--accent-orange); font-size: 0.9rem;">⏰ Valid until: 18:00 IST</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- High Severity Alert -->
+        <div class="alert-card high" data-severity="high" data-type="road_hazard">
+            <div style="display: flex; gap: 1.5rem; align-items: start;">
+                <div class="alert-icon high-icon">⚠️</div>
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.8rem;">
+                        <div>
+                            <span class="severity-badge high">HIGH</span>
+                            <span class="alert-type-badge road_hazard">Road Hazard</span>
+                        </div>
+                        <span style="color: var(--text-gray); font-size: 0.85rem;">5 hours ago</span>
+                    </div>
+                    <h3 style="color: var(--text-light); margin-bottom: 0.8rem;">Major Potholes - Western Express Highway</h3>
+                    <p style="color: var(--text-gray); line-height: 1.6; margin-bottom: 1rem;">
+                        Multiple large potholes reported on Western Express Highway near Andheri. Lane 1 and 2 severely affected. 
+                        Use lane 3 or consider alternative route. Road repairs scheduled for next week.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <span style="color: var(--accent-cyan); font-size: 0.9rem;">📍 Western Express Highway, Andheri</span>
+                        <span style="color: var(--accent-cyan); font-size: 0.9rem;">👥 32 riders confirmed</span>
+                    </div>
+                    <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        View on Map
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Medium Severity Alert -->
+        <div class="alert-card medium" data-severity="medium" data-type="traffic">
+            <div style="display: flex; gap: 1.5rem; align-items: start;">
+                <div class="alert-icon medium-icon">🚦</div>
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.8rem;">
+                        <div>
+                            <span class="severity-badge medium">MEDIUM</span>
+                            <span class="alert-type-badge traffic">Traffic</span>
+                        </div>
+                        <span style="color: var(--text-gray); font-size: 0.85rem;">1 hour ago</span>
+                    </div>
+                    <h3 style="color: var(--text-light); margin-bottom: 0.8rem;">Heavy Traffic - BKC to Worli</h3>
+                    <p style="color: var(--text-gray); line-height: 1.6; margin-bottom: 1rem;">
+                        Slow-moving traffic on Bandra-Worli Sea Link due to minor accident. Expected delay: 20-30 minutes. 
+                        Consider taking alternate route via Mahim Causeway.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="color: var(--text-light); font-size: 0.9rem;">📍 Bandra-Worli Sea Link</span>
+                        <span style="color: var(--text-light); font-size: 0.9rem;">⏱️ Est. clearance: 30 mins</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Low Severity Alert -->
+        <div class="alert-card low" data-severity="low" data-type="construction">
+            <div style="display: flex; gap: 1.5rem; align-items: start;">
+                <div class="alert-icon low-icon">🏗️</div>
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.8rem;">
+                        <div>
+                            <span class="severity-badge low">LOW</span>
+                            <span class="alert-type-badge construction">Construction</span>
+                        </div>
+                        <span style="color: var(--text-gray); font-size: 0.85rem;">3 hours ago</span>
+                    </div>
+                    <h3 style="color: var(--text-light); margin-bottom: 0.8rem;">Road Construction - Linking Road</h3>
+                    <p style="color: var(--text-gray); line-height: 1.6; margin-bottom: 1rem;">
+                        Lane closure on Linking Road near Bandra for metro construction work. Single lane operational. 
+                        Minor delays expected during peak hours. Construction ongoing till March 2026.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="color: var(--text-light); font-size: 0.9rem;">📍 Linking Road, Bandra West</span>
+                        <span style="color: var(--text-light); font-size: 0.9rem;">📅 Duration: Till March 2026</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Accident Zone Alert -->
+        <div class="alert-card high" data-severity="high" data-type="accident">
+            <div style="display: flex; gap: 1.5rem; align-items: start;">
+                <div class="alert-icon high-icon">💥</div>
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.8rem;">
+                        <div>
+                            <span class="severity-badge high">HIGH</span>
+                            <span class="alert-type-badge accident">Accident Zone</span>
+                        </div>
+                        <span style="color: var(--text-gray); font-size: 0.85rem;">6 hours ago</span>
+                    </div>
+                    <h3 style="color: var(--text-light); margin-bottom: 0.8rem;">Accident-Prone Zone - LBS Marg</h3>
+                    <p style="color: var(--text-gray); line-height: 1.6; margin-bottom: 1rem;">
+                        5 accidents reported in this area in the past month. Uneven road surface and poor lighting identified as contributing factors. 
+                        Ride with extra caution, especially after sunset.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <span style="color: var(--accent-orange); font-size: 0.9rem;">📍 LBS Marg, Ghatkopar</span>
+                        <span style="color: var(--accent-orange); font-size: 0.9rem;">⚠️ 5 incidents this month</span>
+                    </div>
+                    <button class="btn btn-orange" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        View Safety Tips
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Submit Alert CTA -->
+    <div class="glass-card" style="margin-top: 3rem; background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(65, 105, 225, 0.15)); border: 2px solid rgba(0, 217, 255, 0.3); text-align: center; padding: 3rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📢</div>
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1rem;">See Something? Say Something!</h2>
+        <p style="color: var(--text-light); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+            Help keep the riding community safe by reporting hazards, accidents, or dangerous conditions you encounter.
+        </p>
+        <a href="{{ url_for('reports.submit_report') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+            Submit Safety Report
+        </a>
+    </div>
+</div>
+
+<style>
+.alert-card {
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+
+.alert-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow);
+}
+
+.alert-card.critical {
+    background: rgba(244, 67, 54, 0.1);
+    border-color: rgba(244, 67, 54, 0.5);
+}
+
+.alert-card.high {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: rgba(255, 193, 7, 0.5);
+}
+
+.alert-card.medium {
+    background: rgba(0, 217, 255, 0.1);
+    border-color: rgba(0, 217, 255, 0.5);
+}
+
+.alert-card.low {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.5);
+}
+
+.alert-icon {
+    font-size: 3rem;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.critical-icon {
+    background: rgba(244, 67, 54, 0.2);
+}
+
+.high-icon {
+    background: rgba(255, 193, 7, 0.2);
+}
+
+.medium-icon {
+    background: rgba(0, 217, 255, 0.2);
+}
+
+.low-icon {
+    background: rgba(76, 175, 80, 0.2);
+}
+
+.severity-badge {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-right: 0.5rem;
+}
+
+.severity-badge.critical {
+    background: rgba(244, 67, 54, 0.9);
+    color: white;
+}
+
+.severity-badge.high {
+    background: rgba(255, 193, 7, 0.9);
+    color: #000;
+}
+
+.severity-badge.medium {
+    background: rgba(0, 217, 255, 0.9);
+    color: #000;
+}
+
+.severity-badge.low {
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+}
+
+.alert-type-badge {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+</style>
+
+<script>
+function filterAlerts() {
+    const severity = document.getElementById('filterSeverity').value;
+    const type = document.getElementById('filterType').value;
+    const location = document.getElementById('filterLocation').value.toLowerCase();
+    
+    const alerts = document.querySelectorAll('.alert-card');
+    
+    alerts.forEach(alert => {
+        const alertSeverity = alert.dataset.severity;
+        const alertType = alert.dataset.type;
+        const alertText = alert.textContent.toLowerCase();
+        
+        const matchesSeverity = severity === 'all' || alertSeverity === severity;
+        const matchesType = type === 'all' || alertType === type;
+        const matchesLocation = location === 'all' || alertText.includes(location);
+        
+        if (matchesSeverity && matchesType && matchesLocation) {
+            alert.style.display = '';
+        } else {
+            alert.style.display = 'none';
+        }
+    });
+}
+
+function refreshAlerts() {
+    // Show loading indicator
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Refreshing...';
+    btn.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// Auto-refresh alerts every 5 minutes
+setInterval(() => {
+    console.log('Auto-refreshing alerts...');
+    // In production, fetch new alerts via AJAX
+}, 300000);
+</script>
+{% endblock %}

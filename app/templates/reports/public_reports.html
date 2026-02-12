@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}Public Accident Reports - Community Awareness{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-white">
+            <h3><i class="fas fa-exclamation-triangle"></i> Public Accident & Issue Reports</h3>
+            <p class="mb-0">Community-driven safety awareness - Learn from real rider experiences</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                    <h5>Total Reports</h5>
+                    <h2 class="text-primary">{{ total_reports }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-skull-crossbones fa-2x text-danger mb-2"></i>
+                    <h5>Critical</h5>
+                    <h2 class="text-danger">{{ severity_stats.get('critical', 0) }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-exclamation-circle fa-2x text-warning mb-2"></i>
+                    <h5>Major</h5>
+                    <h2 class="text-warning">{{ severity_stats.get('major', 0) }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-info-circle fa-2x text-info mb-2"></i>
+                    <h5>Minor</h5>
+                    <h2 class="text-info">{{ severity_stats.get('minor', 0) }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('reports.public_reports') }}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Severity</label>
+                        <select name="severity" class="form-control">
+                            <option value="">All Severities</option>
+                            <option value="minor" {% if current_severity == 'minor' %}selected{% endif %}>Minor</option>
+                            <option value="major" {% if current_severity == 'major' %}selected{% endif %}>Major</option>
+                            <option value="critical" {% if current_severity == 'critical' %}selected{% endif %}>Critical</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Incident Type</label>
+                        <select name="incident_type" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="accident" {% if current_incident_type == 'accident' %}selected{% endif %}>Accident</option>
+                            <option value="mechanical_failure" {% if current_incident_type == 'mechanical_failure' %}selected{% endif %}>Mechanical Failure</option>
+                            <option value="near_miss" {% if current_incident_type == 'near_miss' %}selected{% endif %}>Near Miss</option>
+                            <option value="theft" {% if current_incident_type == 'theft' %}selected{% endif %}>Theft</option>
+                            <option value="other" {% if current_incident_type == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Bike Model</label>
+                        <select name="bike_id" class="form-control">
+                            <option value="">All Bikes</option>
+                            {% for bike in bikes %}
+                            <option value="{{ bike.id }}" {% if current_bike_id == bike.id %}selected{% endif %}>
+                                {{ bike.brand }} {{ bike.model }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reports List -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-list"></i> Accident & Issue Reports</h5>
+        </div>
+        <div class="card-body">
+            {% if reports.items %}
+                {% for report in reports.items %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center mb-2">
+                                    <h5 class="mb-0">
+                                        {% if report.bike %}
+                                            <i class="fas fa-motorcycle"></i> {{ report.bike.brand }} {{ report.bike.model }}
+                                        {% else %}
+                                            <i class="fas fa-motorcycle"></i> Unknown Bike
+                                        {% endif %}
+                                    </h5>
+                                    <span class="badge 
+                                        {% if report.severity == 'critical' %}bg-danger
+                                        {% elif report.severity == 'major' %}bg-warning
+                                        {% else %}bg-info
+                                        {% endif %} ms-2">
+                                        {{ report.severity|upper }}
+                                    </span>
+                                    <span class="badge bg-secondary ms-2">{{ report.incident_type|replace('_', ' ')|title }}</span>
+                                </div>
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-calendar"></i> {{ report.incident_date.strftime('%B %d, %Y at %I:%M %p') }}
+                                    <i class="fas fa-map-marker-alt ms-3"></i> {{ report.location or 'Location not specified' }}
+                                </p>
+                                <p class="mb-2">{{ report.description }}</p>
+                                {% if report.damage_description %}
+                                <p class="text-muted mb-0">
+                                    <strong>Damage:</strong> {{ report.damage_description }}
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6>Conditions</h6>
+                                        <p class="mb-1"><strong>Weather:</strong> {{ report.weather_condition or 'N/A' }}</p>
+                                        <p class="mb-1"><strong>Road:</strong> {{ report.road_condition or 'N/A' }}</p>
+                                        {% if report.estimated_cost %}
+                                        <p class="mb-0"><strong>Est. Cost:</strong> ₹{{ '{:,.0f}'.format(report.estimated_cost) }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if reports.pages > 1 %}
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        {% if reports.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('reports.public_reports', page=reports.prev_num, severity=current_severity, incident_type=current_incident_type, bike_id=current_bike_id) }}">Previous</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in reports.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                <li class="page-item {% if page_num == reports.page %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('reports.public_reports', page=page_num, severity=current_severity, incident_type=current_incident_type, bike_id=current_bike_id) }}">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if reports.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('reports.public_reports', page=reports.next_num, severity=current_severity, incident_type=current_incident_type, bike_id=current_bike_id) }}">Next</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No reports found with the selected filters.
+                </div>
+            {% endif %}
+
+            <div class="mt-3">
+                <a href="{{ url_for('reports.submit') }}" class="btn btn-warning">
+                    <i class="fas fa-plus"></i> Submit Your Report
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Safety Tips -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5><i class="fas fa-shield-alt"></i> Safety Awareness</h5>
+        </div>
+        <div class="card-body">
+            <h6>Most Common Issue Types:</h6>
+            <ul>
+                {% for incident_type, count in incident_type_stats.items() %}
+                <li><strong>{{ incident_type|replace('_', ' ')|title }}:</strong> {{ count }} reports</li>
+                {% endfor %}
+            </ul>
+            <div class="alert alert-warning">
+                <strong>Reminder:</strong> Always wear proper safety gear, maintain your bike regularly, 
+                and ride within your skill level. Learn from these reports to avoid similar situations.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

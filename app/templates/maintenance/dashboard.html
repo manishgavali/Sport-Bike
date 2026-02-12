@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Maintenance Dashboard{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <h1 class="fade-in" style="margin-bottom: 3rem;">
+        Maintenance <span class="gradient-text">Dashboard</span> 🔧
+    </h1>
+    
+    {% if user_bikes %}
+        <div style="display: grid; gap: 2rem;">
+            {% for user_bike in user_bikes %}
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <h2 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">
+                            {{ user_bike.bike.brand }} {{ user_bike.bike.model }}
+                        </h2>
+                        <p style="color: var(--text-gray);">{{ user_bike.registration_number }} • {{ user_bike.current_km }} km</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="{{ url_for('maintenance.schedule', bike_id=user_bike.id) }}" class="btn btn-primary">View Schedule</a>
+                        <a href="{{ url_for('maintenance.history', bike_id=user_bike.id) }}" class="btn btn-secondary">Service History</a>
+                    </div>
+                </div>
+                
+                <div style="padding: 1rem; background: rgba(255, 107, 53, 0.1); border-radius: 10px; border-left: 4px solid var(--accent-orange);">
+                    <p style="color: var(--text-light); margin-bottom: 0.5rem;">⚠️ <strong>Next Service Due</strong></p>
+                    <p style="color: var(--text-gray);">Estimated at {{ (user_bike.current_km // 3000 + 1) * 3000 }} km ({{ ((user_bike.current_km // 3000 + 1) * 3000) - user_bike.current_km }} km remaining)</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="glass-card" style="text-align: center; padding: 4rem;">
+            <div style="font-size: 5rem; margin-bottom: 1rem;">🔧</div>
+            <h2 style="color: var(--text-gray); margin-bottom: 1rem;">No bikes to maintain</h2>
+            <p style="color: var(--text-gray); margin-bottom: 2rem;">Add your bike to start tracking maintenance</p>
+            <a href="{{ url_for('dashboard.my_bikes') }}" class="btn btn-primary">Add Your Bike</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

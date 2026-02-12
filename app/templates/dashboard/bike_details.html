@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user_bike.bike.brand }} {{ user_bike.bike.model }} - Details{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 6rem auto 2rem; padding: 0 5%;">
+    <div style="margin-bottom: 2rem;">
+        <a href="{{ url_for('dashboard.my_bikes') }}" style="color: var(--accent-cyan); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            ← Back to My Bikes
+        </a>
+        <h1 class="fade-in" style="color: var(--accent-cyan);">
+            {{ user_bike.bike.brand }} {{ user_bike.bike.model }}
+        </h1>
+        <p style="color: var(--text-gray);">{{ user_bike.registration_number or 'No registration number' }}</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+        
+        <!-- Images Gallery -->
+        <div class="glass-card">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📸 Bike Images</h2>
+            
+            {% if images %}
+                <div style="display: grid; gap: 1rem;">
+                    {% for image in images %}
+                    <div style="border-radius: 10px; overflow: hidden; background: rgba(0, 217, 255, 0.05);">
+                        <img src="{{ image }}" alt="Bike Image" style="width: 100%; height: auto; display: block;">
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 3rem; background: rgba(0, 217, 255, 0.05); border-radius: 10px;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">🏍️</div>
+                    <p style="color: var(--text-gray);">No images uploaded yet</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Bike Information -->
+        <div class="glass-card">
+            <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">📋 Bike Information</h2>
+            
+            <div style="display: grid; gap: 1.5rem;">
+                <div>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.3rem;">Brand & Model</p>
+                    <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">{{ user_bike.bike.brand }} {{ user_bike.bike.model }}</p>
+                </div>
+                
+                <div>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.3rem;">Year</p>
+                    <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">{{ user_bike.bike.year }}</p>
+                </div>
+                
+                <div>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.3rem;">Category</p>
+                    <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">{{ user_bike.bike.category|capitalize }}</p>
+                </div>
+                
+                <div>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.3rem;">Registration Number</p>
+                    <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">{{ user_bike.registration_number or 'N/A' }}</p>
+                </div>
+                
+                <div>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.3rem;">Purchase Date</p>
+                    <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">{{ user_bike.purchase_date.strftime('%B %d, %Y') if user_bike.purchase_date else 'N/A' }}</p>
+                </div>
+                
+                <div>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.3rem;">Purchase Price</p>
+                    <p style="color: var(--accent-cyan); font-size: 1.2rem; font-weight: 600;">₹{{ '{:,.0f}'.format(user_bike.purchase_price) if user_bike.purchase_price else 'N/A' }}</p>
+                </div>
+                
+                <div>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.3rem;">Current Odometer</p>
+                    <p style="color: var(--text-light); font-size: 1.2rem; font-weight: 600;">{{ '{:,}'.format(user_bike.current_km) }} km</p>
+                </div>
+                
+                <div>
+                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.3rem;">Condition</p>
+                    <p style="color: var(--accent-orange); font-size: 1.2rem; font-weight: 600;">{{ user_bike.bike_condition|capitalize }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Specifications -->
+    {% if user_bike.bike.specs %}
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">⚙️ Technical Specifications</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <!-- Engine -->
+            <div>
+                <h3 style="color: var(--text-light); margin-bottom: 1rem; font-size: 1.1rem;">Engine</h3>
+                <div style="display: grid; gap: 0.8rem;">
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Displacement</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.engine_cc }} cc</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Type</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.engine_type }}</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Max Power</p>
+                        <p style="color: var(--accent-cyan); font-weight: 600;">{{ user_bike.bike.specs.max_power }} HP @ {{ user_bike.bike.specs.max_power_rpm }} RPM</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Max Torque</p>
+                        <p style="color: var(--accent-cyan); font-weight: 600;">{{ user_bike.bike.specs.max_torque }} Nm @ {{ user_bike.bike.specs.max_torque_rpm }} RPM</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance -->
+            <div>
+                <h3 style="color: var(--text-light); margin-bottom: 1rem; font-size: 1.1rem;">Performance</h3>
+                <div style="display: grid; gap: 0.8rem;">
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Top Speed</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.top_speed }} km/h</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">0-100 km/h</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.acceleration_0_100 }} sec</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Mileage (City)</p>
+                        <p style="color: var(--accent-cyan); font-weight: 600;">{{ user_bike.bike.specs.mileage_city }} km/l</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Mileage (Highway)</p>
+                        <p style="color: var(--accent-cyan); font-weight: 600;">{{ user_bike.bike.specs.mileage_highway }} km/l</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dimensions -->
+            <div>
+                <h3 style="color: var(--text-light); margin-bottom: 1rem; font-size: 1.1rem;">Dimensions</h3>
+                <div style="display: grid; gap: 0.8rem;">
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Kerb Weight</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.kerb_weight }} kg</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Fuel Capacity</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.fuel_capacity }} L</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Seat Height</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.seat_height }} mm</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Ground Clearance</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.ground_clearance }} mm</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brakes & Suspension -->
+            <div>
+                <h3 style="color: var(--text-light); margin-bottom: 1rem; font-size: 1.1rem;">Brakes & Suspension</h3>
+                <div style="display: grid; gap: 0.8rem;">
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Front Brake</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.front_brake }}</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Rear Brake</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.rear_brake }}</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Front Suspension</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.front_suspension }}</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-gray); font-size: 0.85rem;">Rear Suspension</p>
+                        <p style="color: var(--text-light); font-weight: 600;">{{ user_bike.bike.specs.rear_suspension }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="glass-card">
+        <h2 style="color: var(--accent-cyan); margin-bottom: 1.5rem;">Quick Actions</h2>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{{ url_for('dashboard.bike_performance', bike_id=user_bike.id) }}" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> View Performance
+            </a>
+            <a href="{{ url_for('dashboard.add_ride_log', bike_id=user_bike.id) }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add Ride Log
+            </a>
+            <a href="{{ url_for('maintenance.schedule', bike_id=user_bike.id) }}" class="btn btn-primary">
+                <i class="fas fa-wrench"></i> Maintenance Schedule
+            </a>
+            <a href="{{ url_for('maintenance.history', bike_id=user_bike.id) }}" class="btn btn-secondary">
+                <i class="fas fa-history"></i> Service History
+            </a>
+            <a href="{{ url_for('simulator.index') }}" class="btn btn-orange">
+                <i class="fas fa-gauge"></i> Performance Simulator
+            </a>
+            <a href="{{ url_for('resale.index') }}" class="btn btn-primary">
+                <i class="fas fa-money-bill-trend-up"></i> Resale Prediction
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
